@@ -66,6 +66,10 @@ Reproduces the pipeline using DVC
 ```
 dvc repro
 ```
+### Install Scikit-Learn
+```
+pip install scikit-learn
+```
 
 ## Data Cleaning
 
