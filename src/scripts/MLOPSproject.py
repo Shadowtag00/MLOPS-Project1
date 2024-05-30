@@ -15,6 +15,8 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
+import logging
+from rich.logging import RichHandler
 
 # import seaborn as sns
 # import matplotlib.pyplot as plt
@@ -27,6 +29,7 @@ def importData():
     COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
     foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
     pop = pd.read_csv('data/Chicago_Population_Counts.csv')
+    log.info("Data imported")
     return ccvi,COVstats,COVvacc,foodInsp,pop
 
 # COVID 19 Stats Cleaning (1/6)
@@ -40,6 +43,7 @@ def cleanCOVIDStats(COVstats):
         'Deaths - Weekly': 'sum',
         'Case Rate - Weekly': lambda x: x.median()
     }).reset_index()
+    log.info("COVID-19 stats cleaned")
     return covstats_cleaned
 
 # COVID 19 Vaccinations Cleaning (2/6)
@@ -53,6 +57,7 @@ def cleanCOVIDVacc(COVvacc):
     aggregated_data_dose = covdose_cleaned.groupby('Zip Code').agg({
         'Total Doses - Daily': 'sum',
     }).reset_index()
+    log.info("COVID-19 Vaccination cleaned")
     return aggregated_data_dose
 
 # CCVI Cleaning (3/6)
@@ -60,6 +65,7 @@ def cleanCOVIDVacc(COVvacc):
 # ccvi keep Community area or xip code, ccvi value, location(for now)
 def cleanCCVI(ccvi):
     ccvi = ccvi[['Community Area or ZIP Code', 'CCVI Score', 'Location']]
+    log.info("Data imported")
     return ccvi
 
 # Food Inspections CLeaning (4/6)
@@ -146,8 +152,9 @@ def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,cc
 def splitTrainingData(merged_data):
 
     # Define X (features) and y (target)
-    X = merged_data.drop('Total COVID Deaths', axis=1)
     y = merged_data['Total COVID Deaths']
+    X = merged_data.drop('Total COVID Deaths', axis=1)
+    # y = merged_data['Total COVID Deaths']
 
     # Split the dataset into training and testing sets (80% train, 20% test)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -185,11 +192,11 @@ def linearReg(X_train, X_test, y_train, y_test):
     print("Mean Squared Error (MSE):", mse_lr)
     print("Root Mean Squared Error (RMSE):", rmse_lr)
 
-    print(y_pred_lr)
-
-    print(y_test.reset_index(drop=True, inplace=True))
-
-    print(y_test)
+    # print(y_pred_lr)
+    #
+    # print(y_test.reset_index(drop=True, inplace=True))
+    #
+    # print(y_test)
 
 def randomForestRegression(X_train, X_test, y_train, y_test):
     # Initialize the model
@@ -253,6 +260,12 @@ def gbr(X_train, X_test, y_train, y_test):
 
 
 if __name__ == '__main__':
+    FORMAT = "%(message)s"
+    logging.basicConfig(
+        level="WARNING", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+    )
+    log = logging.getLogger("rich")
+    log.info("Hello, World!")
     ccvi,COVstats,COVvacc,foodInsp,pop=importData()
     ccvi=cleanCCVI(ccvi)
     COVstats=cleanCOVIDStats(COVstats)
