@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # coding: utf-8
 
 # imports
@@ -12,13 +12,14 @@ import matplotlib.pyplot as plt
 
 # Dataset import
 
-census = pd.read_csv('Census_Data_-_Selected_socioeconomic_indicators_in_Chicago__2008___2012_20240322.csv')
-ccvi = pd.read_csv('Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only_20240322.csv')
-COVstats = pd.read_csv('COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code_20240322.csv')
-COVvacc =pd.read_csv('COVID-19_Vaccinations_by_ZIP_Code_-_Historical_20240322.csv')
-foodInsp = pd.read_csv('Food_Inspections_20240322.csv')
-PHStats = pd.read_csv('Public_Health_Statistics_-_Selected_public_health_indicators_by_Chicago_community_area_-_Historical_20240322.csv')
-pop = pd.read_csv('Chicago_Population_Counts_20240324.csv')
+
+census = pd.read_csv('Census_Data_-_Selected_socioeconomic_indicators_in_Chicago__2008___2012.csv')
+ccvi = pd.read_csv('Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
+COVstats = pd.read_csv('COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
+COVvacc =pd.read_csv('COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
+foodInsp = pd.read_csv('Food_Inspections.csv')
+PHStats = pd.read_csv('Public_Health_Statistics_-_Selected_public_health_indicators_by_Chicago_community_area_-_Historical.csv')
+pop = pd.read_csv('Chicago_Population_Counts.csv')
 
 
 # COVID 19 Stats Cleaning (1/6)
