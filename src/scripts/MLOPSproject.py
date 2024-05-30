@@ -23,12 +23,12 @@ import numpy as np
 # pop = pd.read_csv('Chicago_Population_Counts.csv')
 
 #census = pd.read_csv('data\Census_Data_-_Selected_socioeconomic_indicators_in_Chicago__2008___2012.csv')
-ccvi = pd.read_csv('data\Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only_20240322.csv')
-COVstats = pd.read_csv('data\COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code_20240322.csv')
-COVvacc =pd.read_csv('data\COVID-19_Vaccinations_by_ZIP_Code_-_Historical_20240322.csv')
-foodInsp = pd.read_csv('https://data.cityofchicago.org/resource/4ijn-s7e5.csv')
+ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
+COVstats = pd.read_csv('data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
+COVvacc =pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
+foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
 #PHStats = pd.read_csv('data\Public_Health_Statistics_-_Selected_public_health_indicators_by_Chicago_community_area_-_Historical_20240322.csv')
-pop = pd.read_csv('data\Chicago_Population_Counts_20240324.csv')
+pop = pd.read_csv('data/Chicago_Population_Counts.csv')
 
 
 
