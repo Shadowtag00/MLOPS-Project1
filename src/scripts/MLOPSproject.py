@@ -10,6 +10,12 @@ import cProfile
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.svm import SVR
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from torch.profiler import profile, record_function, ProfilerActivity
 
 # import seaborn as sns
 # import matplotlib.pyplot as plt
@@ -22,26 +28,23 @@ def importData():
     COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
     foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
     pop = pd.read_csv('data/Chicago_Population_Counts.csv')
-
+    return ccvi,COVstats,COVvacc,foodInsp,pop
 
 # COVID 19 Stats Cleaning (1/6)
-def cleanCOVIDStats():
+def cleanCOVIDStats(COVstats):
     covstats_cleaned = COVstats[['ZIP Code', 'Cases - Weekly', 'Case Rate - Weekly', 'Deaths - Weekly']]
     covstats_cleaned = covstats_cleaned[covstats_cleaned['ZIP Code'] != 'Unknown']
     covstats_cleaned.dropna(inplace=True)
     covstats_cleaned['ZIP Code'] = covstats_cleaned['ZIP Code'].astype('int64')
-    covstats_cleaned
-
-    # Group by 'ZIP Code' and calculate the sum of weekly cases and deaths, and the mean of weekly case rate
-    aggregated_data = covstats_cleaned.groupby('ZIP Code').agg({
+    covstats_cleaned = covstats_cleaned.groupby('ZIP Code').agg({
         'Cases - Weekly': 'sum',
         'Deaths - Weekly': 'sum',
         'Case Rate - Weekly': lambda x: x.median()
     }).reset_index()
-
+    return covstats_cleaned
 
 # COVID 19 Vaccinations Cleaning (2/6)
-def cleanCOVIDVacc():
+def cleanCOVIDVacc(COVvacc):
     COVvacc.dropna(inplace=True)
     covdose_cleaned = COVvacc[['Zip Code', 'Total Doses - Daily']]
 
@@ -51,19 +54,19 @@ def cleanCOVIDVacc():
     aggregated_data_dose = covdose_cleaned.groupby('Zip Code').agg({
         'Total Doses - Daily': 'sum',
     }).reset_index()
-
+    return aggregated_data_dose
 
 # CCVI Cleaning (3/6)
 
 # ccvi keep Community area or xip code, ccvi value, location(for now)
-def cleanCCVI():
+def cleanCCVI(ccvi):
     ccvi = ccvi[['Community Area or ZIP Code', 'CCVI Score', 'Location']]
-
+    return ccvi
 
 # Food Inspections CLeaning (4/6)
 
 # Drop null values
-def cleanFoodInspection():
+def cleanFoodInspection(foodInsp):
     foodInsp.dropna(inplace=True)
 
     # Create a boolean mask to filter out entries with specific result values
@@ -100,9 +103,9 @@ def cleanFoodInspection():
 
     # Print pass-to-fail ratio
     print(pass_fail_ratio)
-
+    return pass_fail_ratio
 # Population Cleaning (6/6)
-def cleanPopulation():
+def cleanPopulation(pop):
     # Create a boolean mask to filter out entries with specific result values
     mask = pop['Geography Type'].isin(['Zip Code'])
 
@@ -117,11 +120,11 @@ def cleanPopulation():
 
     pop_final = filtered_pop[['Geography', 'Population - Total']]
     pop_final['Geography'] = pop_final['Geography'].astype('int64')
-
+    return pop_final
 # Merging data into one dataset
 
 # Merge datasets on 'ZIP Code'
-def mergeData():
+def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,ccvi):
     merged_data = pd.merge(aggregated_data, aggregated_data_dose, left_on='ZIP Code', right_on='Zip Code', how='inner')
     merged_data = pd.merge(merged_data, pop_final, left_on='Zip Code', right_on='Geography', how='inner')
     merged_data = pd.merge(merged_data, pass_fail_ratio, left_on='Zip Code', right_on='Zip', how='inner')
@@ -139,9 +142,9 @@ def mergeData():
     print(merged_data)
     print(merged_data.info())
     print(merged_data.describe())
-
+    return merged_data
 # Split training data
-def splitTrainingData():
+def splitTrainingData(merged_data):
 
     # Define X (features) and y (target)
     X = merged_data.drop('Total COVID Deaths', axis=1)
@@ -152,101 +155,152 @@ def splitTrainingData():
 
     print("Training set size:", len(X_train))
     print("Testing set size:", len(X_test))
+    return X_train, X_test, y_train, y_test
 
 # Models
 
 
-# Initialize the model
-model_lr = LinearRegression()
+def linearReg(X_train, X_test, y_train, y_test):
+    # Initialize the model
+    model_lr = LinearRegression()
 
-# Train the model
-model_lr.fit(X_train, y_train)
+    # Profile the training of the model
+    with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
+        with record_function("train_model"):
+            # Train the model
+            model_lr.fit(X_train, y_train)
+
+    # Profile the prediction step
+    with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
+        with record_function("lin-reg"):
+            # Predict on the test set
+            y_pred_lr = model_lr.predict(X_test)
+
+    # Calculate evaluation metrics
+    mae_lr = mean_absolute_error(y_test, y_pred_lr)
+    mse_lr = mean_squared_error(y_test, y_pred_lr)
+    rmse_lr = np.sqrt(mse_lr)
+
+    # Print the profiling results
+    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+
+    # Print evaluation metrics
+    print("Linear Regression Evaluation:")
+    print("Mean Absolute Error (MAE):", mae_lr)
+    print("Mean Squared Error (MSE):", mse_lr)
+    print("Root Mean Squared Error (RMSE):", rmse_lr)
+
+    # Print predictions
+    print(y_pred_lr)
+
+    # Reset the index of y_test for comparison
+    y_test.reset_index(drop=True, inplace=True)
+
+    # Print the true values
+    print(y_test)
+
+# Example usage
+# X_train, X_test, y_train, y_test = your_data_loading_function()
+# linearReg(X_train, X_test, y_train, y_test)
+
+# def linearReg(X_train, X_test, y_train, y_test):
+#     # Initialize the model
+#     model_lr = LinearRegression()
+#
+#     # Train the model
+#     model_lr.fit(X_train, y_train)
+#
+#
+#
+#     # Predict on the test set
+#     y_pred_lr = model_lr.predict(X_test)
+#
+#     # Calculate evaluation metrics
+#     mae_lr = mean_absolute_error(y_test, y_pred_lr)
+#     mse_lr = mean_squared_error(y_test, y_pred_lr)
+#     rmse_lr = np.sqrt(mse_lr)
+#
+#     print("Linear Regression Evaluation:")
+#     print("Mean Absolute Error (MAE):", mae_lr)
+#     print("Mean Squared Error (MSE):", mse_lr)
+#     print("Root Mean Squared Error (RMSE):", rmse_lr)
+#
+#     print(y_pred_lr)
+#
+#     print(y_test.reset_index(drop=True, inplace=True))
+#
+#     print(y_test)
+
+def randomForestRegression(X_train, X_test, y_train, y_test):
+    # Initialize the model
+    model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
+
+    # Train the model
+    model_rf.fit(X_train, y_train)
+
+    # Predict on the test set
+    y_pred_rf = model_rf.predict(X_test)
+
+    # Calculate evaluation metrics
+    mae_rf = mean_absolute_error(y_test, y_pred_rf)
+    mse_rf = mean_squared_error(y_test, y_pred_rf)
+    rmse_rf = np.sqrt(mse_rf)
+
+    print("Random Forest Regression Evaluation:")
+    print("Mean Absolute Error (MAE):", mae_rf)
+    print("Mean Squared Error (MSE):", mse_rf)
+    print("Root Mean Squared Error (RMSE):", rmse_rf)
+
+def gbr(X_train, X_test, y_train, y_test):
+    # Initialize the model
+    model_gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+
+    # Train the model
+    model_gb.fit(X_train, y_train)
+
+    # Predict on the test set
+    y_pred_gb = model_gb.predict(X_test)
+
+    # Calculate evaluation metrics
+    mae_gb = mean_absolute_error(y_test, y_pred_gb)
+    mse_gb = mean_squared_error(y_test, y_pred_gb)
+    rmse_gb = np.sqrt(mse_gb)
+
+    print("Gradient Boosting Regression Evaluation:")
+    print("Mean Absolute Error (MAE):", mae_gb)
+    print("Mean Squared Error (MSE):", mse_gb)
+    print("Root Mean Squared Error (RMSE):", rmse_gb)
 
 
+    # Initialize the model with StandardScaler
+    model_svr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
 
-# Predict on the test set
-y_pred_lr = model_lr.predict(X_test)
+    # Train the model
+    model_svr.fit(X_train, y_train)
 
-# Calculate evaluation metrics
-mae_lr = mean_absolute_error(y_test, y_pred_lr)
-mse_lr = mean_squared_error(y_test, y_pred_lr)
-rmse_lr = np.sqrt(mse_lr)
+    # Predict on the test set
+    y_pred_svr = model_svr.predict(X_test)
 
-print("Linear Regression Evaluation:")
-print("Mean Absolute Error (MAE):", mae_lr)
-print("Mean Squared Error (MSE):", mse_lr)
-print("Root Mean Squared Error (RMSE):", rmse_lr)
+    # Calculate evaluation metrics
+    mae_svr = mean_absolute_error(y_test, y_pred_svr)
+    mse_svr = mean_squared_error(y_test, y_pred_svr)
+    rmse_svr = np.sqrt(mse_svr)
 
-print(y_pred_lr)
+    print("Support Vector Regression (SVR) Evaluation:")
+    print("Mean Absolute Error (MAE):", mae_svr)
+    print("Mean Squared Error (MSE):", mse_svr)
+    print("Root Mean Squared Error (RMSE):", rmse_svr)
 
-print(y_test.reset_index(drop=True, inplace=True))
 
-print(y_test)
-
-from sklearn.ensemble import RandomForestRegressor
-
-# Initialize the model
-model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
-
-# Train the model
-model_rf.fit(X_train, y_train)
-
-# Predict on the test set
-y_pred_rf = model_rf.predict(X_test)
-
-# Calculate evaluation metrics
-mae_rf = mean_absolute_error(y_test, y_pred_rf)
-mse_rf = mean_squared_error(y_test, y_pred_rf)
-rmse_rf = np.sqrt(mse_rf)
-
-print("Random Forest Regression Evaluation:")
-print("Mean Absolute Error (MAE):", mae_rf)
-print("Mean Squared Error (MSE):", mse_rf)
-print("Root Mean Squared Error (RMSE):", rmse_rf)
-
-from sklearn.ensemble import GradientBoostingRegressor
-
-# Initialize the model
-model_gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
-
-# Train the model
-model_gb.fit(X_train, y_train)
-
-# Predict on the test set
-y_pred_gb = model_gb.predict(X_test)
-
-# Calculate evaluation metrics
-mae_gb = mean_absolute_error(y_test, y_pred_gb)
-mse_gb = mean_squared_error(y_test, y_pred_gb)
-rmse_gb = np.sqrt(mse_gb)
-
-print("Gradient Boosting Regression Evaluation:")
-print("Mean Absolute Error (MAE):", mae_gb)
-print("Mean Squared Error (MSE):", mse_gb)
-print("Root Mean Squared Error (RMSE):", rmse_gb)
-
-from sklearn.svm import SVR
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
-
-# Initialize the model with StandardScaler
-model_svr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
-
-# Train the model
-model_svr.fit(X_train, y_train)
-
-# Predict on the test set
-y_pred_svr = model_svr.predict(X_test)
-
-# Calculate evaluation metrics
-mae_svr = mean_absolute_error(y_test, y_pred_svr)
-mse_svr = mean_squared_error(y_test, y_pred_svr)
-rmse_svr = np.sqrt(mse_svr)
-
-print("Support Vector Regression (SVR) Evaluation:")
-print("Mean Absolute Error (MAE):", mae_svr)
-print("Mean Squared Error (MSE):", mse_svr)
-print("Root Mean Squared Error (RMSE):", rmse_svr)
-
-# if __name__ == '__main__':
-#     cProfile.run('testProfiling()')
+if __name__ == '__main__':
+    ccvi,COVstats,COVvacc,foodInsp,pop=importData()
+    ccvi=cleanCCVI(ccvi)
+    COVstats=cleanCOVIDStats(COVstats)
+    passFail=cleanFoodInspection(foodInsp)
+    pop=cleanPopulation(pop)
+    COVvacc=cleanCOVIDVacc(COVvacc)
+    mergedData=mergeData(COVstats,COVvacc,pop,passFail,ccvi)
+    X_train, X_test, y_train, y_test=splitTrainingData(mergedData)
+    linearReg(X_train, X_test, y_train, y_test)
+    randomForestRegression(X_train, X_test, y_train, y_test)
+    gbr(X_train, X_test, y_train, y_test)
