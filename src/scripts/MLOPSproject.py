@@ -15,7 +15,6 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
-from torch.profiler import profile, record_function, ProfilerActivity
 
 # import seaborn as sns
 # import matplotlib.pyplot as plt
@@ -160,76 +159,37 @@ def splitTrainingData(merged_data):
 # Models
 
 
+# Example usage
+# X_train, X_test, y_train, y_test = your_data_loading_function()
+# linearReg(X_train, X_test, y_train, y_test)
+
 def linearReg(X_train, X_test, y_train, y_test):
     # Initialize the model
     model_lr = LinearRegression()
 
-    # Profile the training of the model
-    with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
-        with record_function("train_model"):
-            # Train the model
-            model_lr.fit(X_train, y_train)
+    # Train the model
+    model_lr.fit(X_train, y_train)
 
-    # Profile the prediction step
-    with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
-        with record_function("lin-reg"):
-            # Predict on the test set
-            y_pred_lr = model_lr.predict(X_test)
+
+
+    # Predict on the test set
+    y_pred_lr = model_lr.predict(X_test)
 
     # Calculate evaluation metrics
     mae_lr = mean_absolute_error(y_test, y_pred_lr)
     mse_lr = mean_squared_error(y_test, y_pred_lr)
     rmse_lr = np.sqrt(mse_lr)
 
-    # Print the profiling results
-    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
-
-    # Print evaluation metrics
     print("Linear Regression Evaluation:")
     print("Mean Absolute Error (MAE):", mae_lr)
     print("Mean Squared Error (MSE):", mse_lr)
     print("Root Mean Squared Error (RMSE):", rmse_lr)
 
-    # Print predictions
     print(y_pred_lr)
 
-    # Reset the index of y_test for comparison
-    y_test.reset_index(drop=True, inplace=True)
+    print(y_test.reset_index(drop=True, inplace=True))
 
-    # Print the true values
     print(y_test)
-
-# Example usage
-# X_train, X_test, y_train, y_test = your_data_loading_function()
-# linearReg(X_train, X_test, y_train, y_test)
-
-# def linearReg(X_train, X_test, y_train, y_test):
-#     # Initialize the model
-#     model_lr = LinearRegression()
-#
-#     # Train the model
-#     model_lr.fit(X_train, y_train)
-#
-#
-#
-#     # Predict on the test set
-#     y_pred_lr = model_lr.predict(X_test)
-#
-#     # Calculate evaluation metrics
-#     mae_lr = mean_absolute_error(y_test, y_pred_lr)
-#     mse_lr = mean_squared_error(y_test, y_pred_lr)
-#     rmse_lr = np.sqrt(mse_lr)
-#
-#     print("Linear Regression Evaluation:")
-#     print("Mean Absolute Error (MAE):", mae_lr)
-#     print("Mean Squared Error (MSE):", mse_lr)
-#     print("Root Mean Squared Error (RMSE):", rmse_lr)
-#
-#     print(y_pred_lr)
-#
-#     print(y_test.reset_index(drop=True, inplace=True))
-#
-#     print(y_test)
 
 def randomForestRegression(X_train, X_test, y_train, y_test):
     # Initialize the model
