@@ -45,6 +45,9 @@ DEBUG    Population cleaned
 INFO     Random Forest Regression Completed
 INFO     Mean Absolute Error (MAE):39.505, Mean Squared Error (MSE):2354.3383833333332,Root Mean Squared Error (RMSE):48.52152494855591   
 ```
+### Prometheus
+Prometheus is an open-source monitoring and alerting system designed for reliability and scalability. It is widely used to collect metrics from various systems, allowing you to gain insights into the performance and health of your applications and infrastructure.
+
 
 Installing pre-commit on your local repository. Keep in mind this creates a Github Hook.
 ### ✅ Pre-commit Testings

@@ -1,0 +1,9 @@
+# conf/config.yaml
+data:
+  ccvi_path: "data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv"
+  cov_stats_path: "data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv"
+  cov_vacc_path: "data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv"
+  food_insp_path: "data/Food_Inspections_20240322.csv"
+  pop_path: "data/Chicago_Population_Counts.csv"
+  server_port: 8000
+  loop: False
