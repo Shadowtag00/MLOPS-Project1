@@ -16,7 +16,10 @@ from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 
-from prometheus_client import start_http_server, Summary, Counter
+import hydra
+from omegaconf import DictConfig
+import prometheus_client
+from prometheus_client import  Summary, Counter
 import random
 import time
 import subprocess
@@ -33,8 +36,8 @@ PROMETHEUS_PATH = 'prometheus'  # Update this to your actual Prometheus executab
 PROMETHEUS_CONFIG = 'prometheus.yml'  # Update this to your actual Prometheus configuration file path
 
 # Webpage paths
-metrics = 'http://localhost:8000'
-PROMETHEUS_web = 'http://localhost:9090'
+#metrics = 'http://localhost:8000'
+#PROMETHEUS_web = 'http://localhost:9090'
 
 # Define Prometheus metrics
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
@@ -53,23 +56,64 @@ def start_prometheus():
     """Function to start Prometheus server."""
     return subprocess.Popen([PROMETHEUS_PATH, '--config.file', PROMETHEUS_CONFIG])
 
-# Dataset import
+
+
+
 @IMPORT_TIME.time()
-def importData():
+@hydra.main(version_base=None, config_path="conf", config_name="config")
+def main(cfg: DictConfig) -> None:
+
+    prometheus_client.start_http_server(cfg.data.server_port)
+    # webbrowser.open(metrics)
+    # webbrowser.open(PROMETHEUS_web)
+    
     log.debug("Data is being opened and processed")
-    ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
-    COVstats = pd.read_csv('data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
-    COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv',low_memory=False)
-    foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
-    pop = pd.read_csv('data/Chicago_Population_Counts.csv')
+    ccvi = pd.read_csv(cfg.data.ccvi_path)
+    COVstats = pd.read_csv(cfg.data.cov_stats_path)
+    COVvacc = pd.read_csv(cfg.data.cov_vacc_path, low_memory=False)
+    foodInsp = pd.read_csv(cfg.data.food_insp_path)
+    pop = pd.read_csv(cfg.data.pop_path)
+
+    # Logging for data import
     log.debug("Data imported")
     log.debug("CCVI len:"+str(len(ccvi)))
     log.debug("COVstats len:" + str(len(COVstats)))
     log.debug("COVvacc len:" + str(len(COVvacc)))
     log.debug("foodINSP len:" + str(len(foodInsp)))
     log.debug("pop len:" + str(len(pop)))
-    return ccvi,COVstats,COVvacc,foodInsp,pop
 
+    # Data preprocessing
+    ccvi=cleanCCVI(ccvi)
+    COVstats=cleanCOVIDStats(COVstats)
+    passFail=cleanFoodInspection(foodInsp)
+    pop=cleanPopulation(pop)
+    COVvacc=cleanCOVIDVacc(COVvacc)
+    mergedData=mergeData(COVstats,COVvacc,pop,passFail,ccvi)
+
+    # Split training data
+    X_train, X_test, y_train, y_test=splitTrainingData(mergedData)
+
+    # Model training and evaluation
+    linearReg(X_train, X_test, y_train, y_test)
+    randomForestRegression(X_train, X_test, y_train, y_test)
+    gbr(X_train, X_test, y_train, y_test)
+    svr(X_train, X_test, y_train, y_test)
+
+    while True:
+        time.sleep(15)
+
+# Dataset import
+'''
+def importData():
+    
+    ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
+    COVstats = pd.read_csv('data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
+    COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv',low_memory=False)
+    foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
+    pop = pd.read_csv('data/Chicago_Population_Counts.csv')
+
+    return ccvi,COVstats,COVvacc,foodInsp,pop
+'''
 
 
 # COVID 19 Stats Cleaning
@@ -277,14 +321,22 @@ def logResults(mae,mse,rmse):
              + ", Root Mean Squared Error (RMSE):" + str(rmse))
 
 if __name__ == '__main__':
+    #Log start
+    FORMAT = "%(message)s"
+    logging.basicConfig(
+        level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+    )
+    log = logging.getLogger("rich")
+    log.info("Program Running")
 
+    main()
         # Start the Prometheus server
     #prom_process = start_prometheus()
     #time.sleep(5)  # Wait for Prometheus to start
 
 
     # Start up the server to expose the metrics.
-    start_http_server(8000)
+    '''start_http_server(8000)
     # webbrowser.open(metrics)
     #webbrowser.open(PROMETHEUS_web)
 
@@ -312,14 +364,8 @@ if __name__ == '__main__':
     try:
         # Start up the server to expose the metrics.
         #start_http_server(8000)
-        # Generate some requests.
-        while True:
-            process_request(random.random())
-    except KeyboardInterrupt:
-        # Terminate the Prometheus process on exit
-        #prom_process.terminate()
-        print("Shutting down the Python application...")
-        
+        # Generate some requests.'''
+
 
     
 

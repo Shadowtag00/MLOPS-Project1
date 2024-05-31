@@ -3,7 +3,7 @@ COPY . /app
 WORKDIR /app
 RUN pip install pandas
 RUN pip install scikit-learn
-
+RUN pip install hydra-core
 RUN pip install prometheus_client
 RUN pip install rich
 
