@@ -27,7 +27,7 @@ One big way we were able to use this tool was to have two separate configs for P
 This run command will keep the program active so the user can take an extended look at metrics and monitoring:
 ```
 docker run -p 8000:8000 -p 9090:9090 -p 5000:5000 -e CONFIG=monitoring -it --rm MLOPSProjectContainer
-
+```
 This run command will end the program immediately so that profiling statistics from cprofile can be shown:
 ```
 docker run -it --rm -e CONFIG=profiling MLOPSProjectContainer
