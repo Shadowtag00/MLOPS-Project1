@@ -35,7 +35,7 @@ The Output will look as follows:
 ....
 ....
 ```
-We sorted by the amount of time taken per function, and we noticed 
+We sorted by the cumulative time and concluded that our program ran fairly efficiently aside from loading the data directly from the internet, which we could tell because the importData() function had a longer cumulative runtime than training and running the model itself. For this reason, we included the data in the directory and copied it directly to the container using the Dockerfile, eliminating the one obvious inefficiency in our code as the package would then execute in about 5 seconds and the individual methods were also relatively balanced in timing after fixing the data loading. 
 ## Logging
 This program is designed to be run in two primary modes, INFO and DEBUG using rich profiling, automatically installed through docker. INFO includes basic information such as the model absolute error and squared error for each model and also notifies the user when each model is done running. DEBUG is much more step-by-step, and the program outputs the lengths of the data lists at various points to ensure it is being processed properly and logs different parts of the function, enabling us to identify what was going wrong when combining and processing our data. This allowed us to easily see where our data issues were occurring and address them directly without manually adding print statements that would need to be deleted. This is also extremely useful when working with multiple people and on a project being modified over time. A sample output is shown below:
 ```
