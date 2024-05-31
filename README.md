@@ -11,6 +11,7 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 
 * DVC
 * Python3 and pip
+* Docker
 * Access to IBM Cloud Object Storage
 
 ## 🏃🏻 Running Project
