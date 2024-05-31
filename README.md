@@ -38,7 +38,7 @@ The Output will look as follows:
 ....
 ....
 ```
-We sorted by the cumulative time and concluded that our program ran fairly efficiently aside from loading the data directly from the internet, which we could tell because the importData() function had a longer cumulative runtime than training and running the model itself. For this reason, we included the data in the directory and copied it directly to the container using the Dockerfile, eliminating the one obvious inefficiency in our code as the package would then execute in about 5 seconds and the individual methods were also relatively balanced in timing after fixing the data loading. 
+We sorted by the cumulative time and concluded that our program ran fairly efficiently aside from loading the data directly from the internet, which we could tell because the importData() function had a longer cumulative runtime than training and running the model itself. For this reason, we included the data in the directory and copied it directly to the container using the Dockerfile, eliminating the one obvious inefficiency in our code as the package would then execute in about 14 seconds and the individual methods were also relatively balanced in timing after fixing the data loading. 
 ### PDB
 We used pdb, a debugger built into python, heavily at earlier stages of our project to create breakpoints where we suspected the data was not being processed correctly. We could then interact with the shell to see current variable values and analyze the state of the program just before or after it encountered an issue. This enabled us to quickly identify a typo when merging our data that caused one important dataset to be excluded from the calculations, which may have been missed otherwise.
 ### Logging
