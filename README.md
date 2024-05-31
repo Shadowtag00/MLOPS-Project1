@@ -19,6 +19,19 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 docker build -t MLOPSProjectContainer .
 docker run -it --rm MLOPSProjectContainer
 ```
+## Configuration Editing
+### Hydra
+Hydra is an open-source framework for configuring complex applications and workflows. It provides a powerful way to manage configuration parameters, compose configurations dynamically, and organize your codebase for flexibility and scalability. Hydra allows you to define and manage configuration parameters in a hierarchical and structured manner. You can organize configurations into groups, override parameters, and compose configurations from multiple sources. 
+One big way we were able to use this tool was to have two separate configs for Profiling and Monitoring.
+
+This run command will keep the program active so the user can take an extended look at metrics and monitoring:
+```
+docker run -p 8000:8000 -p 9090:9090 -p 5000:5000 -e CONFIG=monitoring -it --rm MLOPSProjectContainer
+
+This run command will end the program immediately so that profiling statistics from cprofile can be shown:
+```
+docker run -it --rm -e CONFIG=profiling MLOPSProjectContainer
+```
 ## Monitoring, Debugging and Experiment Tracking
 ### cProfiler
 We are using cProfile for profiling the performance of the Python scripts we have written. To view and order the output, the following arguments were included in the Dockerfile:
@@ -52,7 +65,24 @@ INFO     Mean Absolute Error (MAE):39.505, Mean Squared Error (MSE):2354.3383833
 ```
 ### Prometheus
 Prometheus is an open-source monitoring and alerting system designed for reliability and scalability. It is widely used to collect metrics from various systems, allowing you to gain insights into the performance and health of your applications and infrastructure.
+To open the webpage:
+```
+http://localhost:9090
+```
+Once at the webpage, query metrics using PromQL
+For example: 
+```
+#Count of the models trained this session
+model_training_count
+```
 
+### MLFlow
+MLflow allows you to track and compare experiments, logging parameters, metrics, and output files for each run. This helps you keep track of model performance and iterations.
+
+To view metrics collected during the run, open:
+```
+http://localhost:5000
+```
 
 ### Scikit-Learn
 We use scikit-learn for the models in this assignment. It is automatically installed by docker or can be installed using the command below:

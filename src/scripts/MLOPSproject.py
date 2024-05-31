@@ -100,7 +100,7 @@ def main(cfg: DictConfig) -> None:
     X_train, X_test, y_train, y_test=splitTrainingData(mergedData)
 
     # MLflow experiment tracking
-    mlflow.set_experiment("Covid Data Analysis")
+    mlflow.set_experiment("Chicago Health Data Analysis")
     with mlflow.start_run():
         # Model training and evaluation
         linearReg(X_train, X_test, y_train, y_test)
