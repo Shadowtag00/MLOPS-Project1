@@ -5,6 +5,7 @@
 
 import pandas as pd
 import numpy as np
+import os
 import sklearn
 import cProfile
 from sklearn.model_selection import train_test_split
@@ -26,6 +27,8 @@ import subprocess
 #import webbrowser
 # import seaborn as sns
 # import matplotlib.pyplot as plt
+import mlflow
+import mlflow.sklearn
 
 import logging
 from rich.logging import RichHandler
@@ -60,13 +63,15 @@ def start_prometheus():
 
 
 @IMPORT_TIME.time()
-@hydra.main(version_base=None, config_path="conf", config_name="config")
+@hydra.main(version_base=None, config_path="conf", config_name=os.getenv("CONFIG", "monitoring"))
 def main(cfg: DictConfig) -> None:
 
     prometheus_client.start_http_server(cfg.data.server_port)
     log.info(f"Prometheus metrics available on port {cfg.data.server_port}")
     # webbrowser.open(metrics)
     # webbrowser.open(PROMETHEUS_web)
+
+    mlflow.set_tracking_uri("http://localhost:5000")
     
     log.debug("Data is being opened and processed")
     ccvi = pd.read_csv(cfg.data.ccvi_path)
@@ -94,13 +99,24 @@ def main(cfg: DictConfig) -> None:
     # Split training data
     X_train, X_test, y_train, y_test=splitTrainingData(mergedData)
 
-    # Model training and evaluation
-    linearReg(X_train, X_test, y_train, y_test)
-    randomForestRegression(X_train, X_test, y_train, y_test)
-    gbr(X_train, X_test, y_train, y_test)
-    svr(X_train, X_test, y_train, y_test)
+    # MLflow experiment tracking
+    mlflow.set_experiment("Covid Data Analysis")
+    with mlflow.start_run():
+        # Model training and evaluation
+        linearReg(X_train, X_test, y_train, y_test)
+        randomForestRegression(X_train, X_test, y_train, y_test)
+        gbr(X_train, X_test, y_train, y_test)
+        svr(X_train, X_test, y_train, y_test)
 
-    while True:
+        # Log parameters and metrics to MLflow
+        mlflow.log_param("data_paths", cfg.data)
+        mlflow.log_artifact("prometheus.yml")
+        
+        # Log metrics for the experiment
+        mlflow.log_metric("processed_records", PROCESSED_RECORDS._value.get())
+        mlflow.log_metric("model_training_count", MODEL_TRAINING_COUNT._value.get())
+
+    while cfg.data.loop:
         time.sleep(15)
 
 # Dataset import
@@ -261,6 +277,9 @@ def linearReg(X_train, X_test, y_train, y_test):
     rmse_lr = np.sqrt(mse_lr)
     log.info("Linear Regression Completed")
     logResults(mae_lr, mse_lr, rmse_lr)
+    mlflow.log_metric("linear_regression_mae", mae_lr)
+    mlflow.log_metric("linear_regression_mse", mse_lr)
+    mlflow.log_metric("linear_regression_rmse", rmse_lr)
 
 
 @TRAINING_TIME.time()
@@ -280,6 +299,9 @@ def randomForestRegression(X_train, X_test, y_train, y_test):
     rmse_rf = np.sqrt(mse_rf)
     log.info("Random Forest Regression Completed")
     logResults(mae_rf, mse_rf, rmse_rf)
+    mlflow.log_metric("random_forest_mae", mae_rf)
+    mlflow.log_metric("random_forest_mse", mse_rf)
+    mlflow.log_metric("random_forest_rmse", rmse_rf)
 
 
 @TRAINING_TIME.time()
@@ -299,8 +321,13 @@ def gbr(X_train, X_test, y_train, y_test):
     rmse_gb = np.sqrt(mse_gb)
     log.info("Gradient Boosting Regression Completed")
     logResults(mae_gb,mse_gb,rmse_gb)
+    mlflow.log_metric("gbr_mae", mae_gb)
+    mlflow.log_metric("gbr_mse", mse_gb)
+    mlflow.log_metric("gbr_rmse", rmse_gb)
 
+@TRAINING_TIME.time()
 def svr(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model with StandardScaler
     model_svr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.1))
     # Train the model
@@ -315,6 +342,9 @@ def svr(X_train, X_test, y_train, y_test):
     rmse_svr = np.sqrt(mse_svr)
     log.info("SVR Completed")
     logResults(mae_svr, mse_svr, rmse_svr)
+    mlflow.log_metric("svr_mae", mae_svr)
+    mlflow.log_metric("svr_mse", mse_svr)
+    mlflow.log_metric("svr_rmse", rmse_svr)
 
 def logResults(mae,mse,rmse):
     log.info("Mean Absolute Error (MAE):" + str(mae)

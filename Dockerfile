@@ -6,6 +6,7 @@ RUN pip install scikit-learn
 RUN pip install hydra-core
 RUN pip install prometheus_client
 RUN pip install rich
+RUN pip install mlflow
 
 RUN tar xvfz prometheus-2.45.5.linux-amd64.tar.gz && \
 mv prometheus-2.45.5.linux-amd64 prometheus
@@ -14,10 +15,10 @@ mv prometheus-2.45.5.linux-amd64 prometheus
 # Copy Prometheus configuration file
 COPY prometheus.yml /app/prometheus/
 
-EXPOSE 9090 8000
+EXPOSE 9090 8000 5000
 
 # Start Prometheus
-CMD ./prometheus/prometheus --config.file=./prometheus/prometheus.yml & python -m cProfile -s cumtime src/scripts/MLOPSproject.py 
+CMD mlflow ui --host 0.0.0.0 --port 5000 & ./prometheus/prometheus --config.file=./prometheus/prometheus.yml & python -m cProfile -s cumtime src/scripts/MLOPSproject.py 
 #& python -m cProfile -s tottime -o data/cprofilerOutput.txt src/scripts/MLOPSproject.py
 
 

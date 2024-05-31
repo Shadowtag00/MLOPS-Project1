@@ -50,6 +50,9 @@ DEBUG    Population cleaned
 INFO     Random Forest Regression Completed
 INFO     Mean Absolute Error (MAE):39.505, Mean Squared Error (MSE):2354.3383833333332,Root Mean Squared Error (RMSE):48.52152494855591   
 ```
+### Prometheus
+Prometheus is an open-source monitoring and alerting system designed for reliability and scalability. It is widely used to collect metrics from various systems, allowing you to gain insights into the performance and health of your applications and infrastructure.
+
 
 ### Scikit-Learn
 We use scikit-learn for the models in this assignment. It is automatically installed by docker or can be installed using the command below:
