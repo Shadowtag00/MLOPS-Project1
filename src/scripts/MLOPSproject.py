@@ -18,21 +18,24 @@ from sklearn.pipeline import make_pipeline
 import logging
 from rich.logging import RichHandler
 
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-
 
 # Dataset import
 def importData():
     ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
     COVstats = pd.read_csv('data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
-    COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
+    with numpy.errstate(divide='ignore'):
+        COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
     foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
     pop = pd.read_csv('data/Chicago_Population_Counts.csv')
     log.info("Data imported")
+    log.debug("CCVI len:"+str(len(ccvi)))
+    log.debug("COVstats len:" + str(len(COVstats)))
+    log.debug("COVvacc len:" + str(len(COVvacc)))
+    log.debug("foodINSP len:" + str(len(foodInsp)))
+    log.debug("pop len:" + str(len(pop)))
     return ccvi,COVstats,COVvacc,foodInsp,pop
 
-# COVID 19 Stats Cleaning (1/6)
+# COVID 19 Stats Cleaning
 def cleanCOVIDStats(COVstats):
     covstats_cleaned = COVstats[['ZIP Code', 'Cases - Weekly', 'Case Rate - Weekly', 'Deaths - Weekly']]
     covstats_cleaned = covstats_cleaned[covstats_cleaned['ZIP Code'] != 'Unknown']
@@ -44,36 +47,32 @@ def cleanCOVIDStats(COVstats):
         'Case Rate - Weekly': lambda x: x.median()
     }).reset_index()
     log.info("COVID-19 stats cleaned")
+    log.debug("covstats_cleaned len:" + str(len(covstats_cleaned)))
     return covstats_cleaned
 
-# COVID 19 Vaccinations Cleaning (2/6)
+# COVID 19 Vaccinations Cleaning
 def cleanCOVIDVacc(COVvacc):
     COVvacc.dropna(inplace=True)
     covdose_cleaned = COVvacc[['Zip Code', 'Total Doses - Daily']]
-
-    covdose_cleaned['Zip Code'] = covdose_cleaned['Zip Code'].astype('int64')
-
+    covdose_cleaned.loc[:, 'Zip Code'] = covdose_cleaned['Zip Code'].astype('int64')
     # Group by 'ZIP Code' and calculate the sum of weekly cases and deaths, and the mean of weekly case rate
     aggregated_data_dose = covdose_cleaned.groupby('Zip Code').agg({
         'Total Doses - Daily': 'sum',
     }).reset_index()
     log.info("COVID-19 Vaccination cleaned")
+    log.debug("COVIDvacc_cleaned len:" + str(len(aggregated_data_dose)))
     return aggregated_data_dose
 
-# CCVI Cleaning (3/6)
-
-# ccvi keep Community area or xip code, ccvi value, location(for now)
+# CCVI Cleaning
 def cleanCCVI(ccvi):
     ccvi = ccvi[['Community Area or ZIP Code', 'CCVI Score', 'Location']]
     log.info("Data imported")
+    log.debug("covstats_cleaned len:" + str(len(ccvi)))
     return ccvi
 
-# Food Inspections CLeaning (4/6)
-
-# Drop null values
+# Food Inspections CLeaning
 def cleanFoodInspection(foodInsp):
     foodInsp.dropna(inplace=True)
-
     # Create a boolean mask to filter out entries with specific result values
     mask = foodInsp['Results'].isin(['Pass', 'Fail'])
 
@@ -84,7 +83,7 @@ def cleanFoodInspection(foodInsp):
     result_counts = filtered_foodInsp['Results'].value_counts()
 
     # Print the result counts
-    print(result_counts)
+    # log.debug(result_counts)
 
     filtered_foodInsp = filtered_foodInsp[['Zip', 'Results', 'Location']]
     filtered_foodInsp['Zip'] = filtered_foodInsp['Zip'].astype('int64')
@@ -94,11 +93,11 @@ def cleanFoodInspection(foodInsp):
     counts_by_zip_results = filtered_foodInsp.groupby(['Zip', 'Results']).size()
 
     # Print the counts
-    print(counts_by_zip_results)
+    # log.debug(counts_by_zip_results)
 
     # Rename 'Pass w/ Conditions' to 'Pass'
     food_inspections_grouped = counts_by_zip_results.copy()
-    print(food_inspections_grouped)
+    # log.debug(food_inspections_grouped)
 
     # Calculate pass-to-fail ratio for each ZIP code
     pass_fail_ratio = food_inspections_grouped.loc[:, 'Pass'] / food_inspections_grouped.loc[:, 'Fail']
@@ -107,26 +106,25 @@ def cleanFoodInspection(foodInsp):
     pass_fail_ratio['Results'] = pass_fail_ratio['Results'].fillna(0)
 
     # Print pass-to-fail ratio
-    print(pass_fail_ratio)
+    # log.debug(pass_fail_ratio)
+    log.info("Food inspections grouped into pass/fail ratio by zip")
+    log.debug("pass_fail len:" + str(len(pass_fail_ratio)))
     return pass_fail_ratio
-# Population Cleaning (6/6)
+# Population Cleaning
 def cleanPopulation(pop):
     # Create a boolean mask to filter out entries with specific result values
     mask = pop['Geography Type'].isin(['Zip Code'])
-
     # Apply the mask to filter out rows with specified result values
     filtered_pop = pop[mask]
-
     # Create a boolean mask to filter out entries with specific result values
     maskTwo = filtered_pop['Year'].isin([2021])
-
     # Apply the mask to filter out rows with specified result values
     filtered_pop = filtered_pop[maskTwo].reset_index()
-
     pop_final = filtered_pop[['Geography', 'Population - Total']]
-    pop_final['Geography'] = pop_final['Geography'].astype('int64')
+    pop_final.loc[:, 'Geography'] = pop_final['Geography'].astype('int64')
+    log.info("Population cleaned")
+    log.debug("pop_cleaned len:" + str(len(pop_final)))
     return pop_final
-# Merging data into one dataset
 
 # Merge datasets on 'ZIP Code'
 def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,ccvi):
@@ -134,89 +132,62 @@ def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,cc
     merged_data = pd.merge(merged_data, pop_final, left_on='Zip Code', right_on='Geography', how='inner')
     merged_data = pd.merge(merged_data, pass_fail_ratio, left_on='Zip Code', right_on='Zip', how='inner')
     merged_data = pd.merge(merged_data, ccvi, left_on='ZIP Code', right_on='Community Area or ZIP Code', how='inner')
-
     # Drop unwanted columns
     merged_data.drop(columns=['Zip Code', 'Zip', 'Community Area or ZIP Code', 'Location', 'Geography'], inplace=True)
-
     # Rename 'Cases - Weekly' column to 'Total COVID Cases'
     merged_data.rename(columns={'Cases - Weekly': 'Total COVID Cases'}, inplace=True)
     merged_data.rename(columns={'Deaths - Weekly': 'Total COVID Deaths'}, inplace=True)
     merged_data.rename(columns={'Total Doses - Daily': 'Total COVID Vacc Doses'}, inplace=True)
     merged_data.rename(columns={'Results': 'Food Insp: Pass/Fail'}, inplace=True)
-
-    print(merged_data)
-    print(merged_data.info())
-    print(merged_data.describe())
+    log.info("Data Merged and filtered")
+    # print(merged_data)
+    # log.debug(merged_data.info())
+    # log.debug(merged_data.describe())
+    # log.debug("Merged list len:" + str(len(merged_data)))
     return merged_data
+
 # Split training data
 def splitTrainingData(merged_data):
-
     # Define X (features) and y (target)
     y = merged_data['Total COVID Deaths']
     X = merged_data.drop('Total COVID Deaths', axis=1)
-    # y = merged_data['Total COVID Deaths']
-
     # Split the dataset into training and testing sets (80% train, 20% test)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    print("Training set size:", len(X_train))
-    print("Testing set size:", len(X_test))
+    log.debug("Training set size:"+ str(len(X_train)))
+    log.debug("Testing set size:"+ str(len(X_test)))
+    log.info("Data split into train and test")
     return X_train, X_test, y_train, y_test
 
 # Models
-
-
-# Example usage
-# X_train, X_test, y_train, y_test = your_data_loading_function()
-# linearReg(X_train, X_test, y_train, y_test)
-
 def linearReg(X_train, X_test, y_train, y_test):
     # Initialize the model
     model_lr = LinearRegression()
-
     # Train the model
     model_lr.fit(X_train, y_train)
-
-
-
     # Predict on the test set
     y_pred_lr = model_lr.predict(X_test)
-
     # Calculate evaluation metrics
     mae_lr = mean_absolute_error(y_test, y_pred_lr)
     mse_lr = mean_squared_error(y_test, y_pred_lr)
     rmse_lr = np.sqrt(mse_lr)
+    log.info("Linear Regression Completed")
+    logResults(mae_lr, mse_lr, rmse_lr)
 
-    print("Linear Regression Evaluation:")
-    print("Mean Absolute Error (MAE):", mae_lr)
-    print("Mean Squared Error (MSE):", mse_lr)
-    print("Root Mean Squared Error (RMSE):", rmse_lr)
-
-    # print(y_pred_lr)
-    #
-    # print(y_test.reset_index(drop=True, inplace=True))
-    #
-    # print(y_test)
 
 def randomForestRegression(X_train, X_test, y_train, y_test):
     # Initialize the model
     model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
-
     # Train the model
     model_rf.fit(X_train, y_train)
-
     # Predict on the test set
     y_pred_rf = model_rf.predict(X_test)
-
     # Calculate evaluation metrics
     mae_rf = mean_absolute_error(y_test, y_pred_rf)
     mse_rf = mean_squared_error(y_test, y_pred_rf)
     rmse_rf = np.sqrt(mse_rf)
+    log.info("Random Forest Regression Completed")
+    logResults(mae_rf, mse_rf, rmse_rf)
 
-    print("Random Forest Regression Evaluation:")
-    print("Mean Absolute Error (MAE):", mae_rf)
-    print("Mean Squared Error (MSE):", mse_rf)
-    print("Root Mean Squared Error (RMSE):", rmse_rf)
 
 def gbr(X_train, X_test, y_train, y_test):
     # Initialize the model
@@ -232,15 +203,12 @@ def gbr(X_train, X_test, y_train, y_test):
     mae_gb = mean_absolute_error(y_test, y_pred_gb)
     mse_gb = mean_squared_error(y_test, y_pred_gb)
     rmse_gb = np.sqrt(mse_gb)
+    log.info("Gradient Boosting Regression Completed")
+    logResults(mae_gb,mse_gb,rmse_gb)
 
-    print("Gradient Boosting Regression Evaluation:")
-    print("Mean Absolute Error (MAE):", mae_gb)
-    print("Mean Squared Error (MSE):", mse_gb)
-    print("Root Mean Squared Error (RMSE):", rmse_gb)
-
-
+def svr(X_train, X_test, y_train, y_test):
     # Initialize the model with StandardScaler
-    model_svr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
+    model_svr = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.1))
 
     # Train the model
     model_svr.fit(X_train, y_train)
@@ -252,20 +220,24 @@ def gbr(X_train, X_test, y_train, y_test):
     mae_svr = mean_absolute_error(y_test, y_pred_svr)
     mse_svr = mean_squared_error(y_test, y_pred_svr)
     rmse_svr = np.sqrt(mse_svr)
-
-    print("Support Vector Regression (SVR) Evaluation:")
-    print("Mean Absolute Error (MAE):", mae_svr)
-    print("Mean Squared Error (MSE):", mse_svr)
-    print("Root Mean Squared Error (RMSE):", rmse_svr)
-
+    log.info("SVR Completed")
+    logResults(mae_svr, mse_svr, rmse_svr)
+    # print("\nSupport Vector Regression (SVR) Evaluation:")
+    # print("Mean Absolute Error (MAE):", mae_svr)
+    # print("Mean Squared Error (MSE):", mse_svr)
+    # print("Root Mean Squared Error (RMSE):", rmse_svr)
+def logResults(mae,mse,rmse):
+    log.info("Mean Absolute Error (MAE):" + str(mae)
+             + ", Mean Squared Error (MSE):" + str(mse)
+             + ", Root Mean Squared Error (RMSE):" + str(rmse))
 
 if __name__ == '__main__':
     FORMAT = "%(message)s"
     logging.basicConfig(
-        level="WARNING", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+        level="DEBUG", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
     )
     log = logging.getLogger("rich")
-    log.info("Hello, World!")
+    log.info("Program Running")
     ccvi,COVstats,COVvacc,foodInsp,pop=importData()
     ccvi=cleanCCVI(ccvi)
     COVstats=cleanCOVIDStats(COVstats)
@@ -277,3 +249,4 @@ if __name__ == '__main__':
     linearReg(X_train, X_test, y_train, y_test)
     randomForestRegression(X_train, X_test, y_train, y_test)
     gbr(X_train, X_test, y_train, y_test)
+    svr(X_train, X_test, y_train, y_test)
