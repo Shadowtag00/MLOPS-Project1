@@ -75,7 +75,14 @@ For example:
 #Count of the models trained this session
 model_training_count
 ```
+We Integrated five metrics into the program to help us:
+Time spent importing data (data_import_seconds)
+Time spent cleaning data (data_cleaning_seconds)
+Time spent training model (model_training_seconds)
+Number of processed records (processed_records)
+Number of times models are trained (model_training_count)
 
+Being able to see these metrics over time and graphed with prometheus gives us a much better view into our program.
 ### MLFlow
 MLflow allows you to track and compare experiments, logging parameters, metrics, and output files for each run. This helps you keep track of model performance and iterations.
 
@@ -83,7 +90,7 @@ To view metrics collected during the run, open:
 ```
 http://localhost:5000
 ```
-
+The MLFlow interface give a fantastic overview of all of the data and metrics of our program. All of the data is perfectly organized and easy to read. Having the abilty to organize the data by run and experiment helped us fine tune our models.
 ### Scikit-Learn
 We use scikit-learn for the models in this assignment. It is automatically installed by docker or can be installed using the command below:
 ```
