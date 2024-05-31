@@ -19,7 +19,7 @@ from prometheus_client import start_http_server, Summary, Counter
 import random
 import time
 import subprocess
-
+import webbrowser
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 
@@ -27,6 +27,9 @@ import subprocess
 PROMETHEUS_PATH = 'prometheus'  # Update this to your actual Prometheus executable path
 PROMETHEUS_CONFIG = 'prometheus.yml'  # Update this to your actual Prometheus configuration file path
 
+# Webpage paths
+metrics = 'http://localhost:8000'
+PROMETHEUS_web = 'http://localhost:9090'
 # Define Prometheus metrics
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
 IMPORT_TIME = Summary('data_import_seconds', 'Time spent importing data')
@@ -302,6 +305,10 @@ if __name__ == '__main__':
 
     # Start up the server to expose the metrics.
     start_http_server(8000)
+    webbrowser.open(metrics)
+    webbrowser.open(PROMETHEUS_web)
+
+    
     ccvi,COVstats,COVvacc,foodInsp,pop=importData()
     ccvi=cleanCCVI(ccvi)
     COVstats=cleanCOVIDStats(COVstats)
