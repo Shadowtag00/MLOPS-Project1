@@ -15,11 +15,46 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
+
+from prometheus_client import start_http_server, Summary, Counter
+import random
+import time
+import subprocess
+import webbrowser
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+
 import logging
 from rich.logging import RichHandler
 
 
+# Path to your Prometheus executable and configuration file
+PROMETHEUS_PATH = 'prometheus'  # Update this to your actual Prometheus executable path
+PROMETHEUS_CONFIG = 'prometheus.yml'  # Update this to your actual Prometheus configuration file path
+
+# Webpage paths
+metrics = 'http://localhost:8000'
+PROMETHEUS_web = 'http://localhost:9090'
+
+# Define Prometheus metrics
+REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+IMPORT_TIME = Summary('data_import_seconds', 'Time spent importing data')
+CLEANING_TIME = Summary('data_cleaning_seconds', 'Time spent cleaning data')
+TRAINING_TIME = Summary('model_training_seconds', 'Time spent training model')
+PROCESSED_RECORDS = Counter('processed_records', 'Number of processed records')
+MODEL_TRAINING_COUNT = Counter('model_training_count', 'Number of times model is trained')
+
+@REQUEST_TIME.time()
+def process_request(t):
+    """A dummy function that takes some time."""
+    time.sleep(t)
+
+def start_prometheus():
+    """Function to start Prometheus server."""
+    return subprocess.Popen([PROMETHEUS_PATH, '--config.file', PROMETHEUS_CONFIG])
+
 # Dataset import
+@IMPORT_TIME.time()
 def importData():
     log.debug("Data is being opened and processed")
     ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
@@ -35,7 +70,10 @@ def importData():
     log.debug("pop len:" + str(len(pop)))
     return ccvi,COVstats,COVvacc,foodInsp,pop
 
+
+
 # COVID 19 Stats Cleaning
+@CLEANING_TIME.time()
 def cleanCOVIDStats(COVstats):
     covstats_cleaned = COVstats[['ZIP Code', 'Cases - Weekly', 'Case Rate - Weekly', 'Deaths - Weekly']]
     covstats_cleaned = covstats_cleaned[covstats_cleaned['ZIP Code'] != 'Unknown']
@@ -46,11 +84,14 @@ def cleanCOVIDStats(COVstats):
         'Deaths - Weekly': 'sum',
         'Case Rate - Weekly': lambda x: x.median()
     }).reset_index()
+    PROCESSED_RECORDS.inc(len(covstats_cleaned))
     log.debug("COVID-19 stats cleaned")
     log.debug("covstats_cleaned len:" + str(len(covstats_cleaned)))
     return covstats_cleaned
 
 # COVID 19 Vaccinations Cleaning
+@CLEANING_TIME.time()
+
 def cleanCOVIDVacc(COVvacc):
     COVvacc.dropna(inplace=True)
     covdose_cleaned = COVvacc[['Zip Code', 'Total Doses - Daily']]
@@ -59,17 +100,25 @@ def cleanCOVIDVacc(COVvacc):
     aggregated_data_dose = covdose_cleaned.groupby('Zip Code').agg({
         'Total Doses - Daily': 'sum',
     }).reset_index()
+    PROCESSED_RECORDS.inc(len(aggregated_data_dose))
     log.debug("COVID-19 Vaccination cleaned")
     log.debug("COVIDvacc_cleaned len:" + str(len(aggregated_data_dose)))
     return aggregated_data_dose
 
 # CCVI Cleaning
+# ccvi keep Community area or xip code, ccvi value, location(for now)
+@CLEANING_TIME.time()
 def cleanCCVI(ccvi):
     ccvi = ccvi[['Community Area or ZIP Code', 'CCVI Score', 'Location']]
+    PROCESSED_RECORDS.inc(len(ccvi))
     log.debug("covstats_cleaned len:" + str(len(ccvi)))
     return ccvi
 
+
+
+
 # Food Inspections CLeaning
+@CLEANING_TIME.time()
 def cleanFoodInspection(foodInsp):
     foodInsp.dropna(inplace=True)
     # Create a boolean mask to filter out entries with specific result values
@@ -90,11 +139,17 @@ def cleanFoodInspection(foodInsp):
     pass_fail_ratio = pass_fail_ratio.reset_index()
     pass_fail_ratio.columns = ['Zip', 'Results']
     pass_fail_ratio['Results'] = pass_fail_ratio['Results'].fillna(0)
+
+    # Print pass-to-fail ratio
+    print(pass_fail_ratio)
+    PROCESSED_RECORDS.inc(len(pass_fail_ratio))
     log.debug("Food inspections grouped into pass/fail ratio by zip")
     log.debug("pass_fail len:" + str(len(pass_fail_ratio)))
     return pass_fail_ratio
 
-# Population Cleaning
+
+ # Population Cleaning
+@CLEANING_TIME.time()
 def cleanPopulation(pop):
     # Create a boolean mask to filter out entries with specific result values
     mask = pop['Geography Type'].isin(['Zip Code'])
@@ -105,12 +160,14 @@ def cleanPopulation(pop):
     # Apply the mask to filter out rows with specified result values
     filtered_pop = filtered_pop[maskTwo].reset_index()
     pop_final = filtered_pop[['Geography', 'Population - Total']]
+    PROCESSED_RECORDS.inc(len(pop_final))
     pop_final.loc[:, 'Geography'] = pop_final['Geography'].astype('int64')
     log.debug("Population cleaned")
     log.debug("pop_cleaned len:" + str(len(pop_final)))
     return pop_final
 
 # Merge datasets on 'ZIP Code'
+@CLEANING_TIME.time()
 def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,ccvi):
     merged_data = pd.merge(aggregated_data, aggregated_data_dose, left_on='ZIP Code', right_on='Zip Code', how='inner')
     merged_data = pd.merge(merged_data, pop_final, left_on='Zip Code', right_on='Geography', how='inner')
@@ -123,6 +180,7 @@ def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,cc
     merged_data.rename(columns={'Deaths - Weekly': 'Total COVID Deaths'}, inplace=True)
     merged_data.rename(columns={'Total Doses - Daily': 'Total COVID Vacc Doses'}, inplace=True)
     merged_data.rename(columns={'Results': 'Food Insp: Pass/Fail'}, inplace=True)
+    PROCESSED_RECORDS.inc(len(merged_data))
     log.debug("Data Merged and filtered")
     log.debug("Merged list len:" + str(len(merged_data)))
     return merged_data
@@ -140,7 +198,10 @@ def splitTrainingData(merged_data):
     return X_train, X_test, y_train, y_test
 
 # Models
+
+@TRAINING_TIME.time()
 def linearReg(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model
     model_lr = LinearRegression()
     # Train the model
@@ -157,7 +218,9 @@ def linearReg(X_train, X_test, y_train, y_test):
     logResults(mae_lr, mse_lr, rmse_lr)
 
 
+@TRAINING_TIME.time()
 def randomForestRegression(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model
     model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
     # Train the model
@@ -174,7 +237,9 @@ def randomForestRegression(X_train, X_test, y_train, y_test):
     logResults(mae_rf, mse_rf, rmse_rf)
 
 
+@TRAINING_TIME.time()
 def gbr(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model
     model_gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
     # Train the model
@@ -212,12 +277,26 @@ def logResults(mae,mse,rmse):
              + ", Root Mean Squared Error (RMSE):" + str(rmse))
 
 if __name__ == '__main__':
+
+        # Start the Prometheus server
+    #prom_process = start_prometheus()
+    #time.sleep(5)  # Wait for Prometheus to start
+
+
+    # Start up the server to expose the metrics.
+    start_http_server(8000)
+    webbrowser.open(metrics)
+    webbrowser.open(PROMETHEUS_web)
+
+    
+
     FORMAT = "%(message)s"
     logging.basicConfig(
         level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
     )
     log = logging.getLogger("rich")
     log.info("Program Running")
+
     ccvi,COVstats,COVvacc,foodInsp,pop=importData()
     ccvi=cleanCCVI(ccvi)
     COVstats=cleanCOVIDStats(COVstats)
@@ -230,3 +309,17 @@ if __name__ == '__main__':
     randomForestRegression(X_train, X_test, y_train, y_test)
     gbr(X_train, X_test, y_train, y_test)
     svr(X_train, X_test, y_train, y_test)
+    try:
+        # Start up the server to expose the metrics.
+        #start_http_server(8000)
+        # Generate some requests.
+        while True:
+            process_request(random.random())
+    except KeyboardInterrupt:
+        # Terminate the Prometheus process on exit
+        #prom_process.terminate()
+        print("Shutting down the Python application...")
+        
+
+    
+
