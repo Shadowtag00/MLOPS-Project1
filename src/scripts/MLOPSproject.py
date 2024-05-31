@@ -231,7 +231,7 @@ def cleanFoodInspection(foodInsp):
     pass_fail_ratio['Results'] = pass_fail_ratio['Results'].fillna(0)
 
     # Print pass-to-fail ratio
-    print(pass_fail_ratio)
+    # print(pass_fail_ratio)
     PROCESSED_RECORDS.inc(len(pass_fail_ratio))
     log.debug("Food inspections grouped into pass/fail ratio by zip")
     log.debug("pass_fail len:" + str(len(pass_fail_ratio)))
