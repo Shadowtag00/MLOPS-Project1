@@ -30,7 +30,7 @@ We are using cProfile for profiling the performance of the Python scripts we hav
 The Output will look as follows:
 ```
  ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-      1    0.000    0.000    5.094    5.094 MLOPSproject.py:6(<module>)
+      1    0.000    0.000   14.393   14.393 MLOPSproject.py:6(<module>)
       1    0.000    0.000   10.641   10.641 <decorator-gen-2>:1(main)
    10/1    0.003    0.000   10.641   10.641 context_managers.py:76(wrapped)
       1    0.000    0.000   10.641   10.641 main.py:80(decorated_main)
