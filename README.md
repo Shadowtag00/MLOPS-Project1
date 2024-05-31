@@ -20,8 +20,8 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 docker build -t MLOPSProjectContainer .
 docker run -it --rm MLOPSProjectContainer
 ```
-##Monitoring, Debugging and Experiment Tracking
-###cProfiler
+## Monitoring, Debugging and Experiment Tracking
+### cProfiler
 We are using cProfile for profiling the performance of the Python scripts we have written. To view and order the output, the following arguments were included:
 ```
 -m cProfile -s pcalls
@@ -36,7 +36,7 @@ The Output will look as follows:
 ....
 ```
 We sorted by the amount of time taken per function, and we noticed 
-##Logging
+## Logging
 This program is designed to be run in two primary modes, INFO and DEBUG using rich profiling, automatically installed through docker. INFO includes basic information such as the model absolute error and squared error for each model and also notifies the user when each model is done running. DEBUG is much more step-by-step, and the program outputs the lengths of the data lists at various points to ensure it is being processed properly and logs different parts of the function, enabling us to identify what was going wrong when combining and processing our data. This allowed us to easily see where our data issues were occurring and address them directly without manually adding print statements that would need to be deleted. This is also extremely useful when working with multiple people and on a project being modified over time. A sample output is shown below:
 ```
 DEBUG    pass_fail len:61
