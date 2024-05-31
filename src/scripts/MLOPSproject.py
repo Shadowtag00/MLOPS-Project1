@@ -23,8 +23,7 @@ from rich.logging import RichHandler
 def importData():
     ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
     COVstats = pd.read_csv('data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
-    with numpy.errstate(divide='ignore'):
-        COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv')
+    COVvacc = pd.read_csv('data/COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv',low_memory=False)
     foodInsp = pd.read_csv('data/Food_Inspections_20240322.csv')
     pop = pd.read_csv('data/Chicago_Population_Counts.csv')
     log.info("Data imported")
