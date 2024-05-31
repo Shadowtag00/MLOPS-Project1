@@ -17,6 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 import logging
 from rich.logging import RichHandler
+import mlflow
 
 
 # Dataset import
@@ -212,6 +213,7 @@ def logResults(mae,mse,rmse):
              + ", Root Mean Squared Error (RMSE):" + str(rmse))
 
 if __name__ == '__main__':
+    mlflow.set_tracking_uri(uri="http://localhost:9000")
     FORMAT = "%(message)s"
     logging.basicConfig(
         level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
