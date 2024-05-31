@@ -15,12 +15,37 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.svm import SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
+from prometheus_client import start_http_server, Summary, Counter
+import random
+import time
+import subprocess
 
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 
+# Path to your Prometheus executable and configuration file
+PROMETHEUS_PATH = 'prometheus'  # Update this to your actual Prometheus executable path
+PROMETHEUS_CONFIG = 'prometheus.yml'  # Update this to your actual Prometheus configuration file path
+
+# Define Prometheus metrics
+REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request')
+IMPORT_TIME = Summary('data_import_seconds', 'Time spent importing data')
+CLEANING_TIME = Summary('data_cleaning_seconds', 'Time spent cleaning data')
+TRAINING_TIME = Summary('model_training_seconds', 'Time spent training model')
+PROCESSED_RECORDS = Counter('processed_records', 'Number of processed records')
+MODEL_TRAINING_COUNT = Counter('model_training_count', 'Number of times model is trained')
+
+@REQUEST_TIME.time()
+def process_request(t):
+    """A dummy function that takes some time."""
+    time.sleep(t)
+
+def start_prometheus():
+    """Function to start Prometheus server."""
+    return subprocess.Popen([PROMETHEUS_PATH, '--config.file', PROMETHEUS_CONFIG])
 
 # Dataset import
+@IMPORT_TIME.time()
 def importData():
     ccvi = pd.read_csv('data/Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv')
     COVstats = pd.read_csv('data/COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv')
@@ -30,6 +55,7 @@ def importData():
     return ccvi,COVstats,COVvacc,foodInsp,pop
 
 # COVID 19 Stats Cleaning (1/6)
+@CLEANING_TIME.time()
 def cleanCOVIDStats(COVstats):
     covstats_cleaned = COVstats[['ZIP Code', 'Cases - Weekly', 'Case Rate - Weekly', 'Deaths - Weekly']]
     covstats_cleaned = covstats_cleaned[covstats_cleaned['ZIP Code'] != 'Unknown']
@@ -40,9 +66,11 @@ def cleanCOVIDStats(COVstats):
         'Deaths - Weekly': 'sum',
         'Case Rate - Weekly': lambda x: x.median()
     }).reset_index()
+    PROCESSED_RECORDS.inc(len(covstats_cleaned))
     return covstats_cleaned
 
 # COVID 19 Vaccinations Cleaning (2/6)
+@CLEANING_TIME.time()
 def cleanCOVIDVacc(COVvacc):
     COVvacc.dropna(inplace=True)
     covdose_cleaned = COVvacc[['Zip Code', 'Total Doses - Daily']]
@@ -53,18 +81,22 @@ def cleanCOVIDVacc(COVvacc):
     aggregated_data_dose = covdose_cleaned.groupby('Zip Code').agg({
         'Total Doses - Daily': 'sum',
     }).reset_index()
+    PROCESSED_RECORDS.inc(len(aggregated_data_dose))
     return aggregated_data_dose
 
 # CCVI Cleaning (3/6)
 
 # ccvi keep Community area or xip code, ccvi value, location(for now)
+@CLEANING_TIME.time()
 def cleanCCVI(ccvi):
     ccvi = ccvi[['Community Area or ZIP Code', 'CCVI Score', 'Location']]
+    PROCESSED_RECORDS.inc(len(ccvi))
     return ccvi
 
 # Food Inspections CLeaning (4/6)
 
 # Drop null values
+@CLEANING_TIME.time()
 def cleanFoodInspection(foodInsp):
     foodInsp.dropna(inplace=True)
 
@@ -102,8 +134,10 @@ def cleanFoodInspection(foodInsp):
 
     # Print pass-to-fail ratio
     print(pass_fail_ratio)
+    PROCESSED_RECORDS.inc(len(pass_fail_ratio))
     return pass_fail_ratio
 # Population Cleaning (6/6)
+@CLEANING_TIME.time()
 def cleanPopulation(pop):
     # Create a boolean mask to filter out entries with specific result values
     mask = pop['Geography Type'].isin(['Zip Code'])
@@ -119,10 +153,12 @@ def cleanPopulation(pop):
 
     pop_final = filtered_pop[['Geography', 'Population - Total']]
     pop_final['Geography'] = pop_final['Geography'].astype('int64')
+    PROCESSED_RECORDS.inc(len(pop_final))
     return pop_final
 # Merging data into one dataset
 
 # Merge datasets on 'ZIP Code'
+@CLEANING_TIME.time()
 def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,ccvi):
     merged_data = pd.merge(aggregated_data, aggregated_data_dose, left_on='ZIP Code', right_on='Zip Code', how='inner')
     merged_data = pd.merge(merged_data, pop_final, left_on='Zip Code', right_on='Geography', how='inner')
@@ -141,6 +177,7 @@ def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,cc
     print(merged_data)
     print(merged_data.info())
     print(merged_data.describe())
+    PROCESSED_RECORDS.inc(len(merged_data))
     return merged_data
 # Split training data
 def splitTrainingData(merged_data):
@@ -162,8 +199,9 @@ def splitTrainingData(merged_data):
 # Example usage
 # X_train, X_test, y_train, y_test = your_data_loading_function()
 # linearReg(X_train, X_test, y_train, y_test)
-
+@TRAINING_TIME.time()
 def linearReg(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model
     model_lr = LinearRegression()
 
@@ -191,7 +229,9 @@ def linearReg(X_train, X_test, y_train, y_test):
 
     print(y_test)
 
+@TRAINING_TIME.time()
 def randomForestRegression(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model
     model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
 
@@ -211,7 +251,9 @@ def randomForestRegression(X_train, X_test, y_train, y_test):
     print("Mean Squared Error (MSE):", mse_rf)
     print("Root Mean Squared Error (RMSE):", rmse_rf)
 
+@TRAINING_TIME.time()
 def gbr(X_train, X_test, y_train, y_test):
+    MODEL_TRAINING_COUNT.inc()
     # Initialize the model
     model_gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
 
@@ -253,6 +295,13 @@ def gbr(X_train, X_test, y_train, y_test):
 
 
 if __name__ == '__main__':
+        # Start the Prometheus server
+    #prom_process = start_prometheus()
+    #time.sleep(5)  # Wait for Prometheus to start
+
+
+    # Start up the server to expose the metrics.
+    start_http_server(8000)
     ccvi,COVstats,COVvacc,foodInsp,pop=importData()
     ccvi=cleanCCVI(ccvi)
     COVstats=cleanCOVIDStats(COVstats)
@@ -264,3 +313,14 @@ if __name__ == '__main__':
     linearReg(X_train, X_test, y_train, y_test)
     randomForestRegression(X_train, X_test, y_train, y_test)
     gbr(X_train, X_test, y_train, y_test)
+    try:
+        # Start up the server to expose the metrics.
+        #start_http_server(8000)
+        # Generate some requests.
+        while True:
+            process_request(random.random())
+    except KeyboardInterrupt:
+        # Terminate the Prometheus process on exit
+        #prom_process.terminate()
+        print("Shutting down the Python application...")
+        
