@@ -32,6 +32,7 @@ import mlflow.sklearn
 
 import logging
 from rich.logging import RichHandler
+import sys
 
 
 # Path to your Prometheus executable and configuration file
@@ -49,6 +50,34 @@ CLEANING_TIME = Summary('data_cleaning_seconds', 'Time spent cleaning data')
 TRAINING_TIME = Summary('model_training_seconds', 'Time spent training model')
 PROCESSED_RECORDS = Counter('processed_records', 'Number of processed records')
 MODEL_TRAINING_COUNT = Counter('model_training_count', 'Number of times model is trained')
+
+#Log start
+FORMAT = "%(message)s"
+#logging.basicConfig(
+#    level="DEBUG", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+#)
+log = logging.getLogger("rich")
+log.setLevel(logging.DEBUG)  # Set the log level
+
+# Create handlers for stdout and stderr
+stdout_handler = RichHandler(level=logging.INFO)
+stderr_handler = RichHandler(level=logging.ERROR)
+
+# Optionally, specify a format for log messages
+formatter = logging.Formatter(FORMAT)
+stdout_handler.setFormatter(formatter)
+stderr_handler.setFormatter(formatter)
+
+# Add the handlers to the logger
+log.addHandler(stdout_handler)
+log.addHandler(stderr_handler)
+
+# Example log messages
+log.debug('This is a debug message')
+log.info('This is an info message')
+log.warning('This is a warning message')
+log.error('This is an error message')
+log.critical('This is a critical message')
 
 @REQUEST_TIME.time()
 def process_request(t):
@@ -352,12 +381,7 @@ def logResults(mae,mse,rmse):
              + ", Root Mean Squared Error (RMSE):" + str(rmse))
 
 if __name__ == '__main__':
-    #Log start
-    FORMAT = "%(message)s"
-    logging.basicConfig(
-        level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-    )
-    log = logging.getLogger("rich")
+
     log.info("Program Running")
    
     # Start Prometheus
