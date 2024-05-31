@@ -285,8 +285,8 @@ if __name__ == '__main__':
 
     # Start up the server to expose the metrics.
     start_http_server(8000)
-    webbrowser.open(metrics)
-    webbrowser.open(PROMETHEUS_web)
+    # webbrowser.open(metrics)
+    #webbrowser.open(PROMETHEUS_web)
 
     
 
