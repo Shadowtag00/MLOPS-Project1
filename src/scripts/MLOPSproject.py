@@ -23,7 +23,7 @@ from prometheus_client import  Summary, Counter
 import random
 import time
 import subprocess
-import webbrowser
+#import webbrowser
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 
@@ -64,6 +64,7 @@ def start_prometheus():
 def main(cfg: DictConfig) -> None:
 
     prometheus_client.start_http_server(cfg.data.server_port)
+    log.info(f"Prometheus metrics available on port {cfg.data.server_port}")
     # webbrowser.open(metrics)
     # webbrowser.open(PROMETHEUS_web)
     
@@ -328,43 +329,17 @@ if __name__ == '__main__':
     )
     log = logging.getLogger("rich")
     log.info("Program Running")
-
-    main()
-        # Start the Prometheus server
-    #prom_process = start_prometheus()
-    #time.sleep(5)  # Wait for Prometheus to start
-
-
-    # Start up the server to expose the metrics.
-    '''start_http_server(8000)
-    # webbrowser.open(metrics)
-    #webbrowser.open(PROMETHEUS_web)
-
-    
-
-    FORMAT = "%(message)s"
-    logging.basicConfig(
-        level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-    )
-    log = logging.getLogger("rich")
-    log.info("Program Running")
-
-    ccvi,COVstats,COVvacc,foodInsp,pop=importData()
-    ccvi=cleanCCVI(ccvi)
-    COVstats=cleanCOVIDStats(COVstats)
-    passFail=cleanFoodInspection(foodInsp)
-    pop=cleanPopulation(pop)
-    COVvacc=cleanCOVIDVacc(COVvacc)
-    mergedData=mergeData(COVstats,COVvacc,pop,passFail,ccvi)
-    X_train, X_test, y_train, y_test=splitTrainingData(mergedData)
-    linearReg(X_train, X_test, y_train, y_test)
-    randomForestRegression(X_train, X_test, y_train, y_test)
-    gbr(X_train, X_test, y_train, y_test)
-    svr(X_train, X_test, y_train, y_test)
+   
+    # Start Prometheus
+    #prometheus_process = start_prometheus()
+    log.info("Prometheus started")
     try:
-        # Start up the server to expose the metrics.
-        #start_http_server(8000)
-        # Generate some requests.'''
+        main()
+    except Exception as e:
+        log.error(f"An error occurred: {e}")
+    finally:
+       # prometheus_process.terminate()
+        log.info("Prometheus terminated")
 
 
     

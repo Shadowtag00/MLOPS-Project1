@@ -17,7 +17,8 @@ COPY prometheus.yml /app/prometheus/
 EXPOSE 9090 8000
 
 # Start Prometheus
-CMD ./prometheus/prometheus --config.file=./prometheus/prometheus.yml & python -m cProfile -s cumtime src/scripts/MLOPSproject.py & python -m cProfile -s tottime -o data/cprofilerOutput.txt src/scripts/MLOPSproject.py
+CMD ./prometheus/prometheus --config.file=./prometheus/prometheus.yml & python -m cProfile -s cumtime src/scripts/MLOPSproject.py 
+#& python -m cProfile -s tottime -o data/cprofilerOutput.txt src/scripts/MLOPSproject.py
 
 
 #RUN pip install rich
