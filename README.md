@@ -16,8 +16,8 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 ## Installing and running docker
 -Download and Install Docker Desktop for your platform of choice through the following link: https://docs.docker.com/engine/install/ .Then, in the project repository, open a terminal window and enter the following to start the program using a docker container:
 ```
-docker build -t MLOPSProjectContainer .
-docker run -it --rm MLOPSProjectContainer
+docker build -t container .
+docker run -it --rm container
 ```
 ## Configuration Editing
 ### Hydra
@@ -26,11 +26,11 @@ One big way we were able to use this tool was to have two separate configs for P
 
 This run command will keep the program active so the user can take an extended look at metrics and monitoring:
 ```
-docker run -p 8000:8000 -p 9090:9090 -p 5000:5000 -e CONFIG=monitoring -it --rm MLOPSProjectContainer
+docker run -p 8000:8000 -p 9090:9090 -p 5000:5000 -e CONFIG=monitoring -it --rm container
 ```
 This run command will end the program immediately so that profiling statistics from cprofile can be shown:
 ```
-docker run -it --rm -e CONFIG=profiling MLOPSProjectContainer
+docker run -it --rm -e CONFIG=profiling container
 ```
 ## Monitoring, Debugging and Experiment Tracking
 ### cProfiler
