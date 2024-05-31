@@ -14,8 +14,7 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 
 
 ## Installing and running docker
--Download and Install Docker Desktop for your platform of choice through the following link: https://docs.docker.com/engine/install/
--In the project repository, open a terminal window and enter the following to start the program using a docker container:
+-Download and Install Docker Desktop for your platform of choice through the following link: https://docs.docker.com/engine/install/ .Then, in the project repository, open a terminal window and enter the following to start the program using a docker container:
 ```
 docker build -t MLOPSProjectContainer .
 docker run -it --rm MLOPSProjectContainer
