@@ -9,27 +9,19 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 
 ## 📋 Requirements
 
-* DVC
 * Python3 and pip
 * Docker
-* Access to IBM Cloud Object Storage
+
 
 ## 🏃🏻 Running Project
 
-### 🔑 Setup IBM Bucket Credentials for IBM COS
-
-#### MacOS and Linux
-Setup your credentials on ```~/.aws/credentials``` and ```~/.aws/config```. DVC works perfectly with IBM Obejct Storage, although it uses S3 protocol, you can also see this in other portions of the repository.
-
-
-~/.aws/credentials
-
-```credentials
-[default]
-aws_access_key_id = {Key ID}
-aws_secret_access_key = {Access Key}
+### Installing and running docker
+*Download and Install Docker Desktop for your platform of choice through the following link: https://docs.docker.com/engine/install/
+*In the project repository, open a terminal window and enter the following to start the program using a docker container:
 ```
-
+docker build -t MLOPSProjectContainer .
+docker run -it --rm MLOPSProjectContainer
+```
 
 ### ✅ Pre-commit Testings
 
