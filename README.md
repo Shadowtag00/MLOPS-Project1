@@ -21,7 +21,7 @@ docker run -it --rm MLOPSProjectContainer
 ```
 ## Monitoring, Debugging and Experiment Tracking
 ### cProfiler
-We are using cProfile for profiling the performance of the Python scripts we have written. To view and order the output, the following arguments were included:
+We are using cProfile for profiling the performance of the Python scripts we have written. To view and order the output, the following arguments were included in the Dockerfile:
 ```
 -m cProfile -s pcalls
 #if saving to file
