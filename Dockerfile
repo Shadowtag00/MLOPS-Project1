@@ -20,18 +20,19 @@ ENV PROMETHEUS_CHECKSUM="65a61cec978eb44a2a220803a4653e6f1f2dbe69510131a86749298
 COPY prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz 
 
 # Check if the local file exists and is valid, else download it
-RUN if [ -f /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz ]; then \
+RUN if [ -f "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" ]; then \
       echo "Using local Prometheus tarball"; \
     else \
       echo "Downloading Prometheus tarball"; \
       curl -LO https://github.com/prometheus/prometheus/releases/download/v$PROMETHEUS_VERSION/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz && \
-      mv prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/; \
+      mv "prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" /tmp/; \
     fi && \
     #echo "$PROMETHEUS_CHECKSUM /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | sha256sum -c - && \
     #tar xvf /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz && \
-    gunzip -c /tmp/prometheus-2.45.5.linux-amd64.tar.gz | tar -xf - -C /tmp/ && \
-    mv prometheus-$PROMETHEUS_VERSION.linux-amd64 prometheus && \
-    rm /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz
+    echo "extracting file"; && \
+    gunzip -c "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | tar -xf - -C /tmp/ && \
+    mv "prometheus-$PROMETHEUS_VERSION.linux-amd64" prometheus && \
+    rm "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz"
 
 # Copy Prometheus configuration file
 COPY prometheus.yml /app/prometheus/
