@@ -15,11 +15,11 @@ RUN pip install mlflow
 # Set the Prometheus version and checksum
 ENV PROMETHEUS_VERSION=2.45.5
 ENV PROMETHEUS_CHECKSUM="65a61cec978eb44a2a220803a4653e6f1f2dbe69510131a867492981ef39f253"
-RUN echo "testing original"
-RUN gunzip -c "prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | tar -xf - -C /tmp/
+#RUN echo "testing original"
+#RUN tar -xvf "prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz"
 
 # Copy local Prometheus tarball if it exists
-COPY prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz 
+#COPY prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz 
 
 # Check if the local file exists and is valid, else download it
 RUN if [ -f "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" ]; then \
@@ -30,9 +30,9 @@ RUN if [ -f "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" ]; then \
       mv "prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" /tmp/; \
     fi && \
     #echo "$PROMETHEUS_CHECKSUM /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | sha256sum -c - && \
-    #tar xvf /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz && \
+    tar -xvf "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" && \
     echo "extracting file" && \
-    gunzip -c "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | tar -xf - -C /tmp/ && \
+    #gunzip -c "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | tar -xf - -C /tmp/ && \
     mv "prometheus-$PROMETHEUS_VERSION.linux-amd64" prometheus && \
     rm "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz"
 
