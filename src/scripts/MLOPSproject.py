@@ -133,13 +133,13 @@ def main(cfg: DictConfig) -> None:
     #     gbr(X_train, X_test, y_train, y_test)
     #     svr(X_train, X_test, y_train, y_test)
     #
-    #     # Log parameters and metrics to MLflow
-    #     mlflow.log_param("data_paths", cfg.data)
-    #     mlflow.log_artifact("prometheus.yml")
-    #
-    #     # Log metrics for the experiment
-    #     mlflow.log_metric("processed_records", PROCESSED_RECORDS._value.get())
-    #     mlflow.log_metric("model_training_count", MODEL_TRAINING_COUNT._value.get())
+        # Log parameters and metrics to MLflow
+        # mlflow.log_param("data_paths", cfg.data)
+        # mlflow.log_artifact("prometheus.yml")
+        #
+        # # Log metrics for the experiment
+        # mlflow.log_metric("processed_records", PROCESSED_RECORDS._value.get())
+        # mlflow.log_metric("model_training_count", MODEL_TRAINING_COUNT._value.get())
 
     while cfg.data.loop:
         time.sleep(15)
@@ -317,6 +317,7 @@ def nFold(mergedData):
             mlflow.log_metric("svr_mse", mse)
             mlflow.log_metric("svr_rmse", rmse)
             svrMetrics.append([mae, mse, rmse])
+
     return lrMetrics, rfMetrics, gbrMetrics, svrMetrics
 
 def logCrossValidationMetrics(lrMetrics, rfMetrics, gbrMetrics, svrMetrics):

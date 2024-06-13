@@ -4,3 +4,4 @@ hydra-core
 prometheus_client
 rich
 mlflow
+dvc
