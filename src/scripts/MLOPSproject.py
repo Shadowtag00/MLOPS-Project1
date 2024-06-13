@@ -148,7 +148,7 @@ def importData():
     current_file_path = os.path.dirname(os.path.abspath(__file__))
     current_file_dir = os.path.dirname(current_file_path)
     if (current_file_dir.__contains__("runner")):
-        current_file_dir = os.path.join(os.path.dirname(current_file_dir), 'data')
+        current_file_dir = os.path.join(os.path.dirname(current_file_dir),"src", 'data')
     else:
         current_file_dir = os.path.join(current_file_dir, '..', 'data')
 
