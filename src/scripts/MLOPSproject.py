@@ -149,6 +149,9 @@ def importData():
     current_file_dir = os.path.dirname(current_file_path)
     # Construct the absolute path to the data directory
     data_dir = os.path.join(current_file_dir, '..', 'data')
+    data_dir=os.getcwd()
+    data_dir = os.path.dirname(os.path.abspath(os.path.join(os.path.dirname("Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv"), "..")))
+    data_dir=os.path.join(data_dir, 'data')
     # Use the absolute paths to load the CSV files
     ccvi = pd.read_csv(os.path.join(data_dir, 'Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv'))
     COVstats = pd.read_csv(os.path.join(data_dir, 'COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv'))
