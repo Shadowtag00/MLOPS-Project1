@@ -49,7 +49,7 @@ jobs:
     - name: Test with pytest
       run: pytest -v
       # Uncomment the following line if your tests are in the 'src/tests' directory
-      # working-directory: /
+       working-directory: /
     # Uncomment the following lines to check code format with black
     # - name: Python Black
     #   run: |
