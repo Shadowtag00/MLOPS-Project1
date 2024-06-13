@@ -14,15 +14,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Create /app directory
-      run: mkdir -p /app
-    - name: Copy files to /app
-      run: cp -R ./* /app/
-    - name: Execute script in /app
-      run: |
-              echo "Running script in /app"
-              # Your script execution here
-            working-directory: /app
 #    - name: Add project directory to PYTHONPATH
 #      run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
     - name: Install dependencies
@@ -36,6 +27,15 @@ jobs:
         pip install rich
         pip install mlflow
         pip install dvc
+    - name: Create /app directory
+      run: mkdir -p /app
+    - name: Copy files to /app
+      run: cp -R data/* /app/
+    - name: Execute script in /app
+      run: |
+        echo "Running script in /app"
+        # Your script execution here
+        working-directory: /app
     - name: Test with pytest
       run: pytest
       # Uncomment the following line if your tests are in the 'src/tests' directory
