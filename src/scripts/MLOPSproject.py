@@ -159,7 +159,7 @@ def importData():
     # Use the absolute paths to load the CSV files
     ccvi = pd.read_csv(os.path.join(current_file_dir, 'Chicago_COVID-19_Community_Vulnerability_Index__CCVI__-_ZIP_Code_Only.csv'))
     COVstats = pd.read_csv(os.path.join(current_file_dir, 'COVID-19_Cases__Tests__and_Deaths_by_ZIP_Code.csv'))
-    COVvacc = pd.read_csv(os.path.join(current_file_dir, 'COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv'), low_memory=False)
+    COVvacc = pd.read_csv(os.path.join(current_file_dir, 'COVID-19_Vaccinations_by_ZIP_Code_-_Historical.csv'))
     foodInsp = pd.read_csv(os.path.join(current_file_dir, 'Food_Inspections_20240322.csv'))
     pop = pd.read_csv(os.path.join(current_file_dir, 'Chicago_Population_Counts.csv'))
     return ccvi, COVstats, COVvacc, foodInsp, pop
