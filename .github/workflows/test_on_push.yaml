@@ -21,12 +21,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest black
         pip install pandas
-        pip install scikit-learn, hydra-core, prometheus_client, rich, mlflow,dvc
+        pip install scikit-learn
+        pip install hydra-core
+        pip install prometheus_client
+        pip install rich
+        pip install mlflow
+        pip install dvc
         cd src
         cd tests
         pytest
-#    - name: Add project directory to PYTHONPATH
-#      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+    - name: Add project directory to PYTHONPATH
+      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 #    - name: Test with pytest
 #      run:  pytest
       working-directory: ./src/tests
