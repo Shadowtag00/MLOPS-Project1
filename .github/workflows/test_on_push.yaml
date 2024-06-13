@@ -27,19 +27,19 @@ jobs:
         pip install rich
         pip install mlflow
         pip install dvc
-    - name: Create /app directory
-      run: mkdir -p /app
-    - name: Copy files to /app
-      run: cp -R data/* /app/
-    - name: Execute script in /app
-      run: |
-        echo "Running script in /app"
-        # Your script execution here
-        working-directory: /app
+#    - name: Create /app directory
+#      run: mkdir -p /app
+#    - name: Copy files to /app
+#      run: cp -R data/* /app/
+#    - name: Execute script in /app
+#      run: |
+#        echo "Running script in /app"
+#        # Your script execution here
+#        working-directory: /app
     - name: Test with pytest
       run: pytest
       # Uncomment the following line if your tests are in the 'src/tests' directory
-#      working-directory: .
+      working-directory: ./src/tests
     # Uncomment the following lines to check code format with black
     # - name: Python Black
     #   run: |
