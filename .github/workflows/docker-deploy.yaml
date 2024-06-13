@@ -8,7 +8,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-        run: |
+      run: |
         echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login \
             -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin docker.io
         docker build . --file Dockerfile \
