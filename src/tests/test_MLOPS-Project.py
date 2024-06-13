@@ -1,14 +1,11 @@
 # !/usr/bin/env python
-
-# Example Tests
-
 import pytest
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-
+import mlflow
 from src.scripts.MLOPSproject import cleanCOVIDStats, cleanCOVIDVacc, cleanCCVI, cleanFoodInspection, cleanPopulation, \
-    mergeData, importData
+    mergeData, importData, nFold, linearReg, randomForestRegression, gbr, svr, calculateCrossValidationMetrics, \
+    calculateMetrics
 
 ccvi, COVstats, COVvacc, foodInsp, pop = importData()
 
@@ -108,23 +105,120 @@ def test_mergeData():
     assert 'Geography' not in actual_merged_data.columns, "Geography column was not dropped"
 
 
-# Test function using pytest
-# def test_splitTrainingData():
-#     merged_data = pd.DataFrame({
-#         'Total COVID Deaths': np.random.randint(0, 100, size=100),
-#         'Feature1': np.random.rand(100),
-#         'Feature2': np.random.rand(100)
-#     })
-#     X_train, X_test, y_train, y_test = splitTrainingData(merged_data)
-#     # Check if the split is correct (80% train, 20% test)
-#     assert len(X_train) == 80, "Incorrect training set size"
-#     assert len(X_test) == 20, "Incorrect testing set size"
-#     assert len(y_train) == 80, "Incorrect training set size for target"
-#     assert len(y_test) == 20, "Incorrect testing set size for target"
-#     # Check if the split is reproducible with the same random state
-#     X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(merged_data.drop('Total COVID Deaths', axis=1), merged_data['Total COVID Deaths'], test_size=0.2, random_state=42)
-#     assert X_train.equals(X_train_2), "Training sets are not equal"
-#     assert X_test.equals(X_test_2), "Testing sets are not equal"
-#     assert y_train.equals(y_train_2), "Training target sets are not equal"
-#     assert y_test.equals(y_test_2), "Testing target sets are not equal"
+# Test function for nFold
+def test_nFold(mock_mlflow):
+    data = {
+        'Feature1': [1, 2, 3, 4, 5],
+        'Feature2': [2, 3, 4, 5, 6],
+        'Total COVID Deaths': [1, 1, 2, 2, 3]
+    }
+    mergedData = pd.DataFrame(data)
+    lrMetrics, rfMetrics, gbrMetrics, svrMetrics = nFold(mergedData)
+    assert len(lrMetrics) == 5, "Linear Regression metrics list should have 5 sets of metrics"
+    assert len(rfMetrics) == 5, "Random Forest metrics list should have 5 sets of metrics"
+    assert len(gbrMetrics) == 5, "Gradient Boosting metrics list should have 5 sets of metrics"
+    assert len(svrMetrics) == 5, "Support Vector Regression metrics list should have 5 sets of metrics"
 
+
+def test_calculateCrossValidationMetrics():
+    performance_measures = [
+        (0.5, 0.6, 0.7),
+        (0.1, 0.2, 0.3),
+        (0.4, 0.5, 0.6)
+    ]
+    mean, stdDev = calculateCrossValidationMetrics(performance_measures)
+    expected_mean = np.array([0.3333, 0.4333, 0.5333])
+    expected_stdDev = np.array([0.17, 0.17, 0.17])
+    # Check if the calculated mean and stdDev are as expected
+    assert np.allclose(mean, expected_mean, atol=0.0001), "The calculated mean is incorrect"
+    assert np.allclose(stdDev, expected_stdDev, atol=0.0001), "The calculated standard deviation is incorrect"
+
+
+# Test function for linearReg
+def test_linearReg():
+    np.random.seed(0)
+    X_train = np.random.rand(10, 3)
+    X_test = np.random.rand(10, 3)
+    y_train = np.random.rand(10,)
+    y_test = np.random.rand(10,)
+    y_test_expected, y_pred_lr = linearReg(X_train, X_test, y_train, y_test)
+    assert y_pred_lr.shape == y_test.shape, "The predicted values and test values do not match in shape."
+    assert not np.any(np.isnan(y_pred_lr)), "The prediction contains NaN values."
+    assert not np.any(np.isinf(y_pred_lr)), "The prediction contains infinite values."
+    assert np.allclose(y_test, y_test_expected), "The expected test values and actual test values do not match."
+
+# Unit test for randomForestRegression
+def test_randomForestRegression():
+        np.random.seed(0)
+        X_train = np.random.rand(10, 3)
+        X_test = np.random.rand(10, 3)
+        y_train = np.random.rand(10, )
+        y_test = np.random.rand(10, )
+        y_test_expected, y_pred_rf = randomForestRegression(X_train, X_test, y_train, y_test)
+        assert y_pred_rf.shape == y_test.shape, "The predicted values and test values do not match in shape."
+        assert not np.any(np.isnan(y_pred_rf)), "The prediction contains NaN values."
+        assert not np.any(np.isinf(y_pred_rf)), "The prediction contains infinite values."
+        assert np.allclose(y_test, y_test_expected), "The expected test values and actual test values do not match."
+
+# Unit test for gbr
+def test_gbr():
+        np.random.seed(0)
+        X_train = np.random.rand(10, 3)
+        X_test = np.random.rand(10, 3)
+        y_train = np.random.rand(10, )
+        y_test = np.random.rand(10, )
+        y_test_expected, y_pred_gb = gbr(X_train, X_test, y_train, y_test)
+        assert y_pred_gb.shape == y_test.shape, "The predicted values and test values do not match in shape."
+        assert not np.any(np.isnan(y_pred_gb)), "The prediction contains NaN values."
+        assert not np.any(np.isinf(y_pred_gb)), "The prediction contains infinite values."
+        assert np.allclose(y_test, y_test_expected), "The expected test values and actual test values do not match."
+
+# Unit test for svr
+def test_svr():
+        np.random.seed(0)
+        X_train = np.random.rand(10, 3)
+        X_test = np.random.rand(10, 3)
+        y_train = np.random.rand(10, )
+        y_test = np.random.rand(10, )
+        y_test_expected, y_pred_svr = svr(X_train, X_test, y_train, y_test)
+        assert y_pred_svr.shape == y_test.shape, "The predicted values and test values do not match in shape."
+        assert not np.any(np.isnan(y_pred_svr)), "The prediction contains NaN values."
+        assert not np.any(np.isinf(y_pred_svr)), "The prediction contains infinite values."
+        assert np.allclose(y_test, y_test_expected), "The expected test values and actual test values do not match."
+
+def test_calculateMetrics():
+    # Test data
+    y_test = np.array([1, 2, 3, 4, 5])
+    y_pred_svr = np.array([1.1, 1.9, 3.1, 3.9, 5.1])
+    # Expected results
+    expected_mae_svr = np.mean(np.abs(y_test - y_pred_svr))
+    expected_mse_svr = np.mean((y_test - y_pred_svr) ** 2)
+    expected_rmse_svr = np.sqrt(expected_mse_svr)
+    actual_mae_svr, actual_mse_svr, actual_rmse_svr = calculateMetrics(y_test, y_pred_svr)
+    assert actual_mae_svr == pytest.approx(expected_mae_svr), "MAE does not match the expected value."
+    assert actual_mse_svr == pytest.approx(expected_mse_svr), "MSE does not match the expected value."
+    assert actual_rmse_svr == pytest.approx(expected_rmse_svr), "RMSE does not match the expected value."
+
+
+# Mocking the MLflow to avoid actual logging during the test
+class MockMlflow:
+    def set_experiment(self, name):
+        pass
+
+    def start_run(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def log_metric(self, key, value):
+        pass
+
+@pytest.fixture
+def mock_mlflow(monkeypatch):
+    monkeypatch.setattr(mlflow, "set_experiment", MockMlflow().set_experiment)
+    monkeypatch.setattr(mlflow, "start_run", MockMlflow().start_run)
+    monkeypatch.setattr(mlflow, "log_metric", MockMlflow().log_metric)

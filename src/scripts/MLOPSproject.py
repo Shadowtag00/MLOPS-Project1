@@ -274,19 +274,6 @@ def mergeData(aggregated_data,aggregated_data_dose, pop_final,pass_fail_ratio,cc
     log.debug("Merged list len:" + str(len(merged_data)))
     return merged_data
 
-# Split training data
-# def splitTrainingData(merged_data):
-#     # Define X (features) and y (target)
-#     y = merged_data['Total COVID Deaths']
-#     X = merged_data.drop('Total COVID Deaths', axis=1)
-#     # Split the dataset into training and testing sets (80% train, 20% test)
-#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-#     log.debug("Data split into train and test")
-#     log.debug("Training set size:"+ str(len(X_train)))
-#     log.debug("Testing set size:"+ str(len(X_test)))
-#     return X_train, X_test, y_train, y_test
-
-
 def nFold(mergedData):
     # Prepare the data for cross-validation
     X = mergedData.drop('Total COVID Deaths', axis=1)
@@ -306,22 +293,26 @@ def nFold(mergedData):
             X_train, X_test = X.iloc[train_index], X.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
             # Model training and evaluation inside the cross-validation loop
-            mae, mse, rmse=linearReg(X_train, X_test, y_train, y_test)
+            y_test,y_pred=linearReg(X_train, X_test, y_train, y_test)
+            mae, mse, rmse=calculateMetrics(y_test, y_pred)
             mlflow.log_metric("lr_mae", mae)
             mlflow.log_metric("lr_mse", mse)
             mlflow.log_metric("lr_rmse", rmse)
             lrMetrics.append([mae,mse,rmse])
-            mae, mse, rmse=randomForestRegression(X_train, X_test, y_train, y_test)
+            y_test, y_pred =randomForestRegression(X_train, X_test, y_train, y_test)
+            mae, mse, rmse = calculateMetrics(y_test, y_pred)
             mlflow.log_metric("rf_mae", mae)
             mlflow.log_metric("rf_mse", mse)
             mlflow.log_metric("rf_rmse", rmse)
             rfMetrics.append([mae, mse, rmse])
-            mae, mse, rmse=gbr(X_train, X_test, y_train, y_test)
+            y_test, y_pred = gbr(X_train, X_test, y_train, y_test)
+            mae, mse, rmse = calculateMetrics(y_test, y_pred)
             mlflow.log_metric("gbr_mae", mae)
             mlflow.log_metric("gbr_mse", mse)
             mlflow.log_metric("gbr_rmse", rmse)
             gbrMetrics.append([mae, mse, rmse])
-            mae, mse, rmse=svr(X_train, X_test, y_train, y_test)
+            y_test, y_pred = svr(X_train, X_test, y_train, y_test)
+            mae, mse, rmse = calculateMetrics(y_test, y_pred)
             mlflow.log_metric("svr_mae", mae)
             mlflow.log_metric("svr_mse", mse)
             mlflow.log_metric("svr_rmse", rmse)
@@ -362,6 +353,8 @@ def calculateCrossValidationMetrics(performance_measures):
     mean = np.mean(performance_measures, axis=0)
     stdDev = np.std(performance_measures, axis=0)
     return mean, stdDev
+
+
 # Models
 
 @TRAINING_TIME.time()
@@ -376,13 +369,8 @@ def linearReg(X_train, X_test, y_train, y_test):
     log.debug("Testing model")
     y_pred_lr = model_lr.predict(X_test)
     # Calculate evaluation metrics
-    log.info("Linear Regression Completed")
-    mae, mse, rmse = calculateMetrics(y_test, y_pred_lr)
-    # logResults(mae, mse, rmse)
-    return mae, mse, rmse
-    # mlflow.log_metric("lr_mae", mae)
-    # mlflow.log_metric("lr_mse", mse)
-    # mlflow.log_metric("lr_rmse", rmse)
+    log.debug("Linear Regression Completed")
+    return y_test,y_pred_lr
 
 
 @TRAINING_TIME.time()
@@ -396,13 +384,9 @@ def randomForestRegression(X_train, X_test, y_train, y_test):
     # Predict on the test set
     log.debug("Testing model")
     y_pred_rf = model_rf.predict(X_test)
-    log.info("Random Forest Regression Completed")
-    mae, mse, rmse = calculateMetrics(y_test, y_pred_rf)
-    # logResults(mae, mse, rmse)
-    return mae, mse, rmse
-    # mlflow.log_metric("rf_mae", mae)
-    # mlflow.log_metric("rf_mse", mse)
-    # mlflow.log_metric("rf_rmse", rmse)
+    log.debug("Random Forest Regression Completed")
+    return y_test,y_pred_rf
+
 
 
 @TRAINING_TIME.time()
@@ -416,13 +400,9 @@ def gbr(X_train, X_test, y_train, y_test):
     # Predict on the test set
     log.debug("Testing model")
     y_pred_gb = model_gb.predict(X_test)
-    log.info("Gradient Boosting Regression Completed")
-    mae, mse, rmse = calculateMetrics(y_test, y_pred_gb)
-    # logResults(mae, mse, rmse)
-    return mae, mse, rmse
-    # mlflow.log_metric("gbr_mae", mae)
-    # mlflow.log_metric("gbr_mse", mse)
-    # mlflow.log_metric("gbr_rmse", rmse)
+    log.debug("Gradient Boosting Regression Completed")
+    return y_test,y_pred_gb
+
 
 @TRAINING_TIME.time()
 def svr(X_train, X_test, y_train, y_test):
@@ -435,16 +415,12 @@ def svr(X_train, X_test, y_train, y_test):
     # Predict on the test set
     log.debug("Testing model")
     y_pred_svr = model_svr.predict(X_test)
-    log.info("SVR Completed")
-    mae, mse, rmse = calculateMetrics(y_test, y_pred_svr)
-    # logResults(mae, mse, rmse)
-    return mae, mse, rmse
-    # mlflow.log_metric("svr_mae", mae)
-    # mlflow.log_metric("svr_mse", mse)
-    # mlflow.log_metric("svr_rmse", rmse)
+    log.debug("SVR Completed")
+    return y_test,y_pred_svr
+
 
 def logResults(mae,mse,rmse):
-    log.info("Mean Absolute Error (MAE):" + str(mae)
+    log.debug("Mean Absolute Error (MAE):" + str(mae)
              + ", Mean Squared Error (MSE):" + str(mse)
              + ", Root Mean Squared Error (RMSE):" + str(rmse))
 
