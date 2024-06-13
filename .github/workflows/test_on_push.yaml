@@ -34,7 +34,7 @@ jobs:
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
     - name: Test with pytest
       run:  pytest
-      working-directory: ./src
+#      working-directory: ./src
 #    - name: Python Black
 #      run: |
 #        black . --check
