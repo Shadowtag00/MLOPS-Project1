@@ -45,7 +45,6 @@ jobs:
 
     #- name: Add project directory to PYTHONPATH
     #  run: echo "PYTHONPATH=${pwd}" >> $GITHUB_ENV
-
     - name: Test with pytest
       run: pytest -v
       # Uncomment the following line if your tests are in the 'src/tests' directory
