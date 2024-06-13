@@ -26,7 +26,7 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-      working-directory: ./src
+      working-directory: ./MLOPS-Project1/MLOPS-Project1
 #    - name: Python Black
 #      run: |
 #        black . --check
