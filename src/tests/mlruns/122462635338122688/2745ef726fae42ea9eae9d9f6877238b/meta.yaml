@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/brend/Documents/MLOPS-Project1/src/tests/mlruns/122462635338122688/2745ef726fae42ea9eae9d9f6877238b/artifacts
+end_time: 1718271574826
+entry_point_name: ''
+experiment_id: '122462635338122688'
+lifecycle_stage: active
+run_id: 2745ef726fae42ea9eae9d9f6877238b
+run_name: merciful-hawk-921
+run_uuid: 2745ef726fae42ea9eae9d9f6877238b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1718271574046
+status: 3
+tags: []
+user_id: brend
