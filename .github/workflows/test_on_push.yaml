@@ -30,8 +30,8 @@ jobs:
 #        cd src
 #        cd tests
 #        pytest
-    - name: Add project directory to PYTHONPATH
-      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+    - name: Add project directory to PYTHON
+      run: echo "PYTHON=$GITHUB_WORKSPACE" >> $GITHUB_ENV
     - name: Test with pytest
       run:  pytest
 #      working-directory: ./src
