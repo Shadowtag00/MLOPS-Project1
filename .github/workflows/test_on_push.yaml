@@ -14,12 +14,15 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - uses: actions/checkout@v2
-    - name: Copy directory and change working directory
+    - name: Create /app directory
+      run: mkdir -p /app
+    - name: Copy files to /app
+      run: cp -R ./* /app/
+    - name: Execute script in /app
       run: |
-        mkdir -p /app
-        cp -R ./* /app/
-      working-directory: /app
+              echo "Running script in /app"
+              # Your script execution here
+            working-directory: /app
 #    - name: Add project directory to PYTHONPATH
 #      run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
     - name: Install dependencies
