@@ -15,6 +15,8 @@ RUN pip install mlflow
 # Set the Prometheus version and checksum
 ENV PROMETHEUS_VERSION=2.45.5
 ENV PROMETHEUS_CHECKSUM="65a61cec978eb44a2a220803a4653e6f1f2dbe69510131a867492981ef39f253"
+RUN echo "testing original"
+RUN gunzip -c "prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | tar -xf - -C /tmp/
 
 # Copy local Prometheus tarball if it exists
 COPY prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz 
