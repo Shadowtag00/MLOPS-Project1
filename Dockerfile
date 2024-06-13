@@ -1,13 +1,13 @@
 FROM python:3.8
 COPY . /app
 WORKDIR /app
-RUN pip install pandas
-RUN pip install scikit-learn
-RUN pip install hydra-core
-RUN pip install prometheus_client
-RUN pip install rich
-RUN pip install mlflow
-
+#RUN pip install pandas
+#RUN pip install scikit-learn
+#RUN pip install hydra-core
+#RUN pip install prometheus_client
+#RUN pip install rich
+#RUN pip install mlflow
+RUN pip install --no-cache-dir -r requirements.txt
 RUN tar xvfz prometheus-2.45.5.linux-amd64.tar.gz && \
 mv prometheus-2.45.5.linux-amd64 prometheus
 # Expose ports for Prometheus and the application
