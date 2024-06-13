@@ -28,7 +28,8 @@ RUN if [ -f /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz ]; then \
       mv prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/; \
     fi && \
     #echo "$PROMETHEUS_CHECKSUM /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" | sha256sum -c - && \
-    tar -xf /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz && \
+    #tar xvf /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz && \
+    gunzip -c /tmp/prometheus-2.45.5.linux-amd64.tar.gz | tar -xf - -C /tmp/ && \
     mv prometheus-$PROMETHEUS_VERSION.linux-amd64 prometheus && \
     rm /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz
 
