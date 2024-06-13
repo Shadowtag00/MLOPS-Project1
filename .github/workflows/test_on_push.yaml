@@ -27,13 +27,13 @@ jobs:
         pip install rich
         pip install mlflow
         pip install dvc
-        cd src
-        cd tests
-        pytest
+#        cd src
+#        cd tests
+#        pytest
     - name: Add project directory to PYTHONPATH
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-#    - name: Test with pytest
-#      run:  pytest
+    - name: Test with pytest
+      run:  pytest
       working-directory: ./src
 #    - name: Python Black
 #      run: |
