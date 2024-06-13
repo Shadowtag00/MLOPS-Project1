@@ -21,12 +21,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest black
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Add project directory to PYTHONPATH
-      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+#    - name: Add project directory to PYTHONPATH
+#      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
     - name: Test with pytest
-      run: |
+      run: echo "::set-env name=PYTHONPATH::home/runner/work/MLOPS-Project1"|
         pytest
-      working-directory: ./src/tests
+#      working-directory: ./src/tests
 #    - name: Python Black
 #      run: |
 #        black . --check
