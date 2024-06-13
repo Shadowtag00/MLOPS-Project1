@@ -27,6 +27,7 @@ jobs:
         pip install rich
         pip install mlflow
         pip install dvc
+        pip install pluggy
     - name: Test with pytest
       run: pytest -v
       # Uncomment the following line if your tests are in the 'src/tests' directory
