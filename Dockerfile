@@ -27,7 +27,7 @@ ENV PROMETHEUS_CHECKSUM="65a61cec978eb44a2a220803a4653e6f1f2dbe69510131a86749298
 #RUN tar -xvf "prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz"
 
 # Copy local Prometheus tarball if it exists
-#COPY prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz 
+#COPY prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz /tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz
 
 # Check if the local file exists and is valid, else download it
 RUN if [ -f "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" ]; then \
@@ -50,7 +50,7 @@ COPY prometheus.yml /app/prometheus/
 EXPOSE 9090 8000 5000
 
 # Start Prometheus
-CMD mlflow ui --host 0.0.0.0 --port 5000 & ./prometheus/prometheus --config.file=./prometheus/prometheus.yml & python -m cProfile -s cumtime src/scripts/MLOPSproject.py 
+CMD mlflow ui --host 0.0.0.0 --port 5000 & ./prometheus/prometheus --config.file=./prometheus/prometheus.yml & python -m cProfile -s cumtime src/scripts/MLOPSproject.py
 #& python -m cProfile -s tottime -o data/cprofilerOutput.txt src/scripts/MLOPSproject.py
 
 
