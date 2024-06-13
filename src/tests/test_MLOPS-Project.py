@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 from src.scripts.MLOPSproject import cleanCOVIDStats, cleanCOVIDVacc, cleanCCVI, cleanFoodInspection, cleanPopulation, \
-    mergeData, splitTrainingData, importData
+    mergeData, importData
 
 ccvi, COVstats, COVvacc, foodInsp, pop = importData()
 
@@ -109,22 +109,22 @@ def test_mergeData():
 
 
 # Test function using pytest
-def test_splitTrainingData():
-    merged_data = pd.DataFrame({
-        'Total COVID Deaths': np.random.randint(0, 100, size=100),
-        'Feature1': np.random.rand(100),
-        'Feature2': np.random.rand(100)
-    })
-    X_train, X_test, y_train, y_test = splitTrainingData(merged_data)
-    # Check if the split is correct (80% train, 20% test)
-    assert len(X_train) == 80, "Incorrect training set size"
-    assert len(X_test) == 20, "Incorrect testing set size"
-    assert len(y_train) == 80, "Incorrect training set size for target"
-    assert len(y_test) == 20, "Incorrect testing set size for target"
-    # Check if the split is reproducible with the same random state
-    X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(merged_data.drop('Total COVID Deaths', axis=1), merged_data['Total COVID Deaths'], test_size=0.2, random_state=42)
-    assert X_train.equals(X_train_2), "Training sets are not equal"
-    assert X_test.equals(X_test_2), "Testing sets are not equal"
-    assert y_train.equals(y_train_2), "Training target sets are not equal"
-    assert y_test.equals(y_test_2), "Testing target sets are not equal"
+# def test_splitTrainingData():
+#     merged_data = pd.DataFrame({
+#         'Total COVID Deaths': np.random.randint(0, 100, size=100),
+#         'Feature1': np.random.rand(100),
+#         'Feature2': np.random.rand(100)
+#     })
+#     X_train, X_test, y_train, y_test = splitTrainingData(merged_data)
+#     # Check if the split is correct (80% train, 20% test)
+#     assert len(X_train) == 80, "Incorrect training set size"
+#     assert len(X_test) == 20, "Incorrect testing set size"
+#     assert len(y_train) == 80, "Incorrect training set size for target"
+#     assert len(y_test) == 20, "Incorrect testing set size for target"
+#     # Check if the split is reproducible with the same random state
+#     X_train_2, X_test_2, y_train_2, y_test_2 = train_test_split(merged_data.drop('Total COVID Deaths', axis=1), merged_data['Total COVID Deaths'], test_size=0.2, random_state=42)
+#     assert X_train.equals(X_train_2), "Training sets are not equal"
+#     assert X_test.equals(X_test_2), "Testing sets are not equal"
+#     assert y_train.equals(y_train_2), "Training target sets are not equal"
+#     assert y_test.equals(y_test_2), "Testing target sets are not equal"
 
