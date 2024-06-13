@@ -18,7 +18,9 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 ```
 docker build -t container .
 docker run -it --rm container
-```
+``
+https://hub.docker.com/repository/docker/shadowtag00/mlops_final_project/
+
 ## Configuration Editing
 ### Hydra
 Hydra is an open-source framework for configuring complex applications and workflows. It provides a powerful way to manage configuration parameters, compose configurations dynamically, and organize your codebase for flexibility and scalability. Hydra allows you to define and manage configuration parameters in a hierarchical and structured manner. You can organize configurations into groups, override parameters, and compose configurations from multiple sources. 
