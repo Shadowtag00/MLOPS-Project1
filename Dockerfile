@@ -10,6 +10,7 @@ RUN pip install mlflow
 
 #RUN tar xvfz prometheus-2.45.5.linux-amd64.tar.gz && \
 #mv prometheus-2.45.5.linux-amd64 prometheus
+
 # Expose ports for Prometheus and the application
 
 # Set the Prometheus version and checksum
