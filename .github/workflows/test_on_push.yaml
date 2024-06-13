@@ -4,12 +4,10 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version:  [3.11]
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -32,7 +30,6 @@ jobs:
 #        cd src
 #        cd tests
 #        pytest
-    V
     - name: Test with pytest
       run:  pytest
 #      working-directory: ./src
