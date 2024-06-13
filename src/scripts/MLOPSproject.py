@@ -147,8 +147,11 @@ def main(cfg: DictConfig) -> None:
 def importData():
     current_file_path = os.path.dirname(os.path.abspath(__file__))
     current_file_dir = os.path.dirname(current_file_path)
+    if (current_file_dir.__contains__("runner")):
+        current_file_dir = os.path.dirname(current_file_dir, "runner")
     # Construct the absolute path to the data directory
     data_dir = os.path.join(current_file_dir, '..', 'data')
+
     # data_dir=os.getcwd()
     # data_dir =os.path.dirname(os.path.abspath(os.path.join(os.path.dirname("requirements.txt"), "..")))
     # data_dir=os.path.expanduser("~\\Documents\\MLOPS-Project1")
