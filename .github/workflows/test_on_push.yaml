@@ -43,8 +43,8 @@ jobs:
         pip install dvc
 #        pip install pluggy
 
-    - name: Add project directory to PYTHONPATH
-      run: echo "PYTHONPATH=${pwd}" >> $GITHUB_ENV
+    #- name: Add project directory to PYTHONPATH
+    #  run: echo "PYTHONPATH=${pwd}" >> $GITHUB_ENV
 
     - name: Test with pytest
       run: pytest -v
