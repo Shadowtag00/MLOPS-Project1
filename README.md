@@ -143,9 +143,10 @@ test_MLOPS-Project.py::test_calculateMetrics PASSED                      [100%]
 We used DVC to control versioning and storing data from data models in an outside server, such as Google Drive. This made it much easier to run our model quickly and efficiently without needing to manually push data changes to git every time. It also enables reproducibility and traceability as it documents the data fed to the model at each step. DVC is automatically run when using the dockerfile to run the project
 
 ## CML and Contious Docker Building
-We leveraged CML and our docker file in order to autograte integration. GitHub actions/pre-commit statements allowed us to run and test our repository automatically in the GitHub server to verify it is running as intended. This will automatically be run on each commit and push, no extra steps required.
+We leveraged CML and our docker file in order to implement integration. GitHub actions/pre-commit statements allowed us to run and test our repository automatically in the GitHub server to verify it is running as intended. This will automatically be run on each commit and push, no extra steps are required.
 
 ## Results
+From our testing, we found that Linear Regression, Random Forest Regression, Gradient Boosting Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques to ensure the performance and reliability of the models. Random Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
 
 ## Challenges and Improvements
 
