@@ -59,7 +59,7 @@ jobs:
       run: ls -R
 
     - name: mv food insp
-      run: mv "uc?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c" Food_Inspections_20240322.csv data
+      run: mv "uc?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c" data/Food_Inspections_20240322.csv
 
     - name: Check if CSV file is valid
       run: |
