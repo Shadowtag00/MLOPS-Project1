@@ -103,13 +103,39 @@ pip install scikit-learn
 
 Firstly we imported all of the datasets from CSV files into our program. For the COVID-19 stats, we only used the Zip code, weekly cases, weekly case rate, and weekly deaths. We then converted all data to int64 and grouped it by zip. We took the same steps for the COVID-19 vaccination data except that the only columns we used were zip code and doses per day, which we could use to find doses per week. For CCVI we only kept the Zip Code, CCVI Score and location info. The food inspection data required the most cleaning. Firstly, we had to convert the pass/fail results stored in the data into boolean values so they could be understood by the model. We then used a mask to only include entries that had a valid non-null boolean value. We then took only the Zip, Result and Location and grouped by Zip and Result. We then calculated the pass-to-fail ratio for each zip code in order to show which areas have a high amount of failed food inspections. For the public health stats, we used almost all of the data, only dropping Gonorrhea in both males and females. Finally for population data, we used a mask to filter out rows without geography data and used another mask to select data only from 2021, when COVID-19 was at its peak. Then, we created a mask that groups by geography(zip) and shows the total population of each. Our final step was to merge all of the data into one dataset using Panda’s merge function. We then removed the duplicate zip code columns and renamed a few of the columns to make the dataset easier to read, creating a single readable dataset to use for training and testing.
 
+From our testing, we found that Linear Regression, Random Forest Regression, Gradient Boosting Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques, and the results supported our original findings. Random Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
+
+##Pytest Unit Tests
+We created unit tests to thoroughly test the data processing, model training, and evaluation scripts to ensure all error-prone aspects of our program are bug free. In practice, we used pytest to ensure the correct columns were being added and removed, that data was the right size at various parts of the data and also tested each model by training them and seeing if their guess was within a small enough margin to be useful. We provide each function with dummy data in order to quickly and extensively test each function. To run all tests, call the following from the project's root directory:
+```
+python src/tests/test_MLOPS-Project.py
+```
+Sample output:
+```
+============================= test session starts =============================
+collecting ... collected 14 items
+
+test_MLOPS-Project.py::test_import_data PASSED                           [  7%]
+test_MLOPS-Project.py::test_cleanCOVIDStats PASSED                       [ 14%]
+test_MLOPS-Project.py::test_cleanCOVIDVacc PASSED                        [ 21%]
+test_MLOPS-Project.py::test_cleanCCVI PASSED                             [ 28%]
+test_MLOPS-Project.py::test_cleanFoodInspection PASSED                   [ 35%]
+test_MLOPS-Project.py::test_cleanPopulation PASSED                       [ 42%]
+test_MLOPS-Project.py::test_mergeData PASSED                             [ 50%]
+test_MLOPS-Project.py::test_nFold PASSED                                 [ 57%]
+test_MLOPS-Project.py::test_calculateCrossValidationMetrics PASSED       [ 64%]
+test_MLOPS-Project.py::test_linearReg PASSED                             [ 71%]
+test_MLOPS-Project.py::test_randomForestRegression PASSED                [ 78%]
+test_MLOPS-Project.py::test_gbr PASSED                                   [ 85%]
+test_MLOPS-Project.py::test_svr PASSED                                   [ 92%]
+test_MLOPS-Project.py::test_calculateMetrics PASSED                      [100%]
+
+```
 ## Results
-
-From our testing, we found that Linear Regression, Random Forest Regression, Gradient Boosting Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques to ensure the performance and reliability of the models. Random Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
-
 
 ## Challenges and Improvements
 
 One unexpected challenge we faced was finding the necessary data for our chosen topic. There was no single data source that provided all of the data we were looking for so we spent a lot of time looking for data and combining data sources into one table. This process was more complicated than anticipated because each table had to be grouped by zip, and each had to be processed separately before it could be added to the larger dataset. 
 
 One place where we could’ve improved is by testing more different layer parameters. We focused much of our testing on finding the best model, and in future weeks I would like to test the other parameters more thoroughly to improve our code’s effectiveness. The other major change I would make is using a simpler dataset. In this section, we spent a lot of time processing and combining data when we could’ve focused our energy elsewhere, We have mostly moved past this issue, but it is something we will remember in the future.
+
