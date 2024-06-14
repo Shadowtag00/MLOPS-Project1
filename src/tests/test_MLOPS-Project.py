@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 import numpy as np
 import mlflow
-from src.scripts.MLOPSproject import cleanCOVIDStats, cleanCOVIDVacc, cleanCCVI, cleanFoodInspection, cleanPopulation, \
+from scripts.MLOPSproject import cleanCOVIDStats, cleanCOVIDVacc, cleanCCVI, cleanFoodInspection, cleanPopulation, \
     mergeData, importData, nFold, linearReg, randomForestRegression, gbr, svr, calculateCrossValidationMetrics, \
     calculateMetrics
 
