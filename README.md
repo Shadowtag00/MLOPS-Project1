@@ -26,7 +26,7 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 ```
 docker build -t container .
 docker run -it --rm container
-``
+```
 https://hub.docker.com/repository/docker/shadowtag00/mlops_final_project/
 
 ## Configuration Editing
