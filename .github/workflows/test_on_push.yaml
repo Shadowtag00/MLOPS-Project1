@@ -8,6 +8,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+        prom-version: [2.45.5]
 
     steps:
     - name: Check out repository
@@ -34,6 +35,21 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest black pandas scikit-learn hydra-core prometheus_client rich mlflow dvc
+
+    - name: Load Prometheus
+      run: |
+        echo "Downloading Prometheus tarball"
+        curl -LO "https://github.com/prometheus/prometheus/releases/download/v${{ matrix.prom-version }}/prometheus-${{ matrix.prom-version }}.linux-amd64.tar.gz"
+        mv "prometheus-${{ matrix.prom-version }}.linux-amd64.tar.gz" /tmp/
+        tar -xvf "/tmp/prometheus-${{ matrix.prom-version }}.linux-amd64.tar.gz" 
+        echo "extracting file"
+        mv "prometheus-${{ matrix.prom-version }}.linux-amd64" prometheus
+        rm "/tmp/prometheus-${{ matrix.prom-version }}.linux-amd64.tar.gz"
+
+    - name: Load food inspections
+      run: |
+        curl -LO https://drive.google.com/uc?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c
+        mv Food_Inspections_20240322.csv data
 
     - name: Check if CSV file is valid
       run: |
