@@ -80,7 +80,7 @@ Finally, we Containerized our model with the Dockerfile. We then deployed the co
 
 ## Results
 
-From our testing, we found that Linear Regression, Random Forest Regression, Gradient Boosting Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques to ensure the performance and reliability of the models. Random Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
+From our testing, we found that Linear Regression, Random Forest Regression, Gradient linear Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques to ensure the performance and reliability of the models. linear Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
 
 
 ## Challenges and Improvements
