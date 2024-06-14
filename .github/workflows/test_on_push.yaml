@@ -52,7 +52,7 @@ jobs:
 
     - name: Load food inspections
       run: |
-        python -c gdown 1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c
+        gdown 1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c
 
 
     - name: List repository files
