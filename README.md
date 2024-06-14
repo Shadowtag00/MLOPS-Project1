@@ -11,7 +11,15 @@ Our project will use datasets from the Chicago Data Portal to forecast COVID-19 
 
 * Python3 and pip
 * Docker
-
+*pandas
+*scikit-learn
+*hydra-core
+*prometheus_client
+*rich
+*mlflow
+*dvc
+*ruff
+*pre-commit
 
 ## Installing and running docker
 -Download and Install Docker Desktop for your platform of choice through the following link: https://docs.docker.com/engine/install/ .Then, in the project repository, open a terminal window and enter the following to start the program using a docker container:
