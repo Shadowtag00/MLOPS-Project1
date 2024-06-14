@@ -37,7 +37,7 @@ jobs:
 
     - name: Check if CSV file is valid
       run: |
-        python -c "import pandas as pd; pd.read_csv('data/Food_Inspections_20240322.csv')"
+        python -c "import pandas as pd;df =  pd.read_csv('data/Food_Inspections_20240322.csv'); print(df.head())"
 
     - name: List repository files
       run: ls -R
