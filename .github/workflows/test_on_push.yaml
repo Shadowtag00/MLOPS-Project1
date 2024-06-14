@@ -52,7 +52,7 @@ jobs:
 
     - name: Load food inspections
       run: |
-        curl -LO https://drive.google.com/uc?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c
+        curl -LO https://drive.usercontent.google.com/download?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c&export=download&authuser=0&confirm=t&uuid=97fddae3-33a3-4bbc-8482-a5f636d94ab5&at=APZUnTXv8XlVd-a8Aa_GEkoauOCo%3A1718332852900
 
 
     - name: List repository files
