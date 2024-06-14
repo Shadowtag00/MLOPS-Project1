@@ -32,7 +32,7 @@ We have the repo automatically building and pushing to docker hub on every push 
 https://hub.docker.com/repository/docker/shadowtag00/mlops_final_project/
 ```
 
-![Alt text](screenshots\docker_hub.png?raw=true "docker hub overview")
+![Alt text](screenshots/docker_hub.png?raw=true "docker hub overview")
 
 ## Configuration Editing
 ### Hydra
