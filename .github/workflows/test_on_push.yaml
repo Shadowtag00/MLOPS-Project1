@@ -35,6 +35,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest black pandas scikit-learn hydra-core prometheus_client rich mlflow dvc
 
+    - name: Check if CSV file is valid
+      run: |
+        python -c "import pandas as pd; pd.read_csv('path/to/your/dataset.csv')"
+
     - name: List repository files
       run: ls -R
 
