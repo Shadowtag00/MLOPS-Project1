@@ -139,6 +139,12 @@ test_MLOPS-Project.py::test_svr PASSED                                   [ 92%]
 test_MLOPS-Project.py::test_calculateMetrics PASSED                      [100%]
 
 ```
+## DVC
+We used DVC to control versioning and storing data from data models in an outside server, such as Google Drive. This made it much easier to run our model quickly and efficiently without needing to manually push data changes to git every time. It also enables reproducibility and traceability as it documents the data fed to the model at each step. DVC is automatically run when using the dockerfile to run the project
+
+## CML and Contious Docker Building
+We leveraged CML and our docker file in order to autograte integration. GitHub actions/pre-commit statements allowed us to run and test our repository automatically in the GitHub server to verify it is running as intended. This will automatically be run on each commit and push, no extra steps required.
+
 ## Results
 
 ## Challenges and Improvements
