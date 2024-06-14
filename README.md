@@ -145,14 +145,17 @@ test_MLOPS-Project.py::test_calculateMetrics PASSED                      [100%]
 
 ```
 ## DVC
-We used DVC to control versioning and storing data from data models in an outside server, such as Google Drive. This made it much easier to run our model quickly and efficiently without needing to manually push data changes to git every time. It also enables reproducibility and traceability as it documents the data fed to the model at each step. DVC is automatically run when using the dockerfile to run the project
+We used DVC to control versioning and storing dataests and from data models in GCP. This makes it much easier to store our data especially since some of our data is larger than github's storage limits. This also makes it much easier to run our model quickly and efficiently without needing to manually push data changes to git every time. It also enables reproducibility and traceability as it documents the data fed to the model at each step. 
 
 ## CML and Contious Docker Building
 We leveraged CML and our docker file in order to implement integration. GitHub actions/pre-commit statements allowed us to run and test our repository automatically in the GitHub server to verify it is running as intended. This will automatically be run on each commit and push, no extra steps are required.
 
 ## GCP and Deployment
+![Alt text](screenshots/gcp_name.png?raw=true "gcp project")
 ### GCP Artifact Registry
 GCP Artifact Registry involves managing and storing Docker images securely. This includes: Setting up the Artifact Registry: Configure the registry in GCP and granting necessary permissions, creating a Docker Image using the provided Dockerfile and pushing to the registry by Authenticate with GCP and pushing the built image to the Artifact Registry.
+### GCP Storage
+Storing our data using cloud storage made our lives much easier as it allowed us to store our oversized datasets and data models quickly and painlessly using dvc.
 ### Custom Training Job
 This involved preparing the GCP environment for training, running the job itself from a bucket, and storing the results via DVC
 ### FastAPI
