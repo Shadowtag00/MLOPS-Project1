@@ -113,7 +113,7 @@ Firstly we imported all of the datasets from CSV files into our program. For the
 
 From our testing, we found that Linear Regression, Random Forest Regression, Gradient Boosting Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques, and the results supported our original findings. Random Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
 
-##Pytest Unit Tests
+## Pytest Unit Tests
 We created unit tests to thoroughly test the data processing, model training, and evaluation scripts to ensure all error-prone aspects of our program are bug free. In practice, we used pytest to ensure the correct columns were being added and removed, that data was the right size at various parts of the data and also tested each model by training them and seeing if their guess was within a small enough margin to be useful. We provide each function with dummy data in order to quickly and extensively test each function. To run all tests, call the following from the project's root directory:
 ```
 python src/tests/test_MLOPS-Project.py
