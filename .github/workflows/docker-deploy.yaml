@@ -1,7 +1,7 @@
 name: SE489 Docker Image continuous integration
 on:
     push:
-        branches: [ add-cml ]
+        branches: [ master ]
 jobs:
     build:
       runs-on: ubuntu-latest
