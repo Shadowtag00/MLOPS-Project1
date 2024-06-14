@@ -145,6 +145,15 @@ We used DVC to control versioning and storing data from data models in an outsid
 ## CML and Contious Docker Building
 We leveraged CML and our docker file in order to implement integration. GitHub actions/pre-commit statements allowed us to run and test our repository automatically in the GitHub server to verify it is running as intended. This will automatically be run on each commit and push, no extra steps are required.
 
+## GCP and Deployment
+### GCP Artifact Registry
+GCP Artifact Registry involves managing and storing Docker images securely. This includes: Setting up the Artifact Registry: Configure the registry in GCP and granting necessary permissions, creating a Docker Image using the provided Dockerfile and pushing to the registry by Authenticate with GCP and pushing the built image to the Artifact Registry.
+### Custom Training Job
+This involved preparing the GCP environment for training, running the job itself from a bucket, and storing the results via DVC
+### FastAPI
+Fast API allows us to create an easy way to access functionality from our program quickly and easily in other applications. This would enable other applications to easily implement and call our model without storing locally
+### Dockerization and Deployment
+Finally, we Containerized our model with the Dockerfile. We then deployed the container to Cloud Run so our model is easy to distribute and for others to access. Lastly, we tested that it ran as intended in the cloud after deployment.
 ## Results
 From our testing, we found that Linear Regression, Random Forest Regression, Gradient Boosting Regression, and Support Vector Regression (SVR) were reasonably effective, but overall Random Forest regression delivered the best results for our use case. We concluded this by analyzing the Mean Absolute Error (MAE), Mean Squared Error (MSE), and Root Mean Squared Error (RMSE). We also used cross-validation techniques to ensure the performance and reliability of the models. Random Forest Regression had the lowest MAE and RMSE values in our tests, leading us to our conclusion.
 
