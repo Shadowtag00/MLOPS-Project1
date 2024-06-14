@@ -46,10 +46,14 @@ jobs:
         mv "prometheus-${{ matrix.prom-version }}.linux-amd64" prometheus
         rm "/tmp/prometheus-${{ matrix.prom-version }}.linux-amd64.tar.gz"
 
+    - name: List repository files
+      run: ls -R
+
+
     - name: Load food inspections
       run: |
         curl -LO https://drive.google.com/uc?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c
-        mv Food_Inspections_20240322.csv data
+        mv "uc?id=1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c" Food_Inspections_20240322.csv data
 
     - name: Check if CSV file is valid
       run: |
