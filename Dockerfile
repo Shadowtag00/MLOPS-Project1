@@ -4,8 +4,8 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir -r requirements.txt
 #RUN dvc init
-RUN tar xvfz prometheus-2.45.5.linux-amd64.tar.gz && \
-mv prometheus-2.45.5.linux-amd64 prometheus
+#RUN tar xvfz prometheus-2.45.5.linux-amd64.tar.gz && \
+#mv prometheus-2.45.5.linux-amd64 prometheus
 
 # RUN pip install pandas
 # RUN pip install scikit-learn
@@ -46,6 +46,8 @@ RUN if [ -f "/tmp/prometheus-$PROMETHEUS_VERSION.linux-amd64.tar.gz" ]; then \
 
 # Copy Prometheus configuration file
 COPY prometheus.yml /app/prometheus/
+
+RUN gdown 1syjdMEBFrnSCnn1yvBtCltkyhdCHlS3c && mv Food_Inspections_20240322.csv data/Food_Inspections_20240322.csv
 
 EXPOSE 9090 8000 5000
 
